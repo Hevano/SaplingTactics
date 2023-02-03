@@ -6,6 +6,8 @@ GameEngine::GameEngine()
     , m_screenWidth(1280)
 {
   SetTargetFPS(60);
+  units.push_back(Unit("./assets/cloak.png"));
+  units[0].setMovement(Vector2(0.001f, 0));
 }
 
 void GameEngine::updateDrawFrame() {
@@ -16,5 +18,14 @@ void GameEngine::updateDrawFrame() {
            200,
            20,
            LIGHTGRAY);
+  units[0].move();
+  units[0].draw();
   EndDrawing();
+}
+
+void GameEngine::start() {
+  while (!m_window.ShouldClose())  // Detect window close button or ESC key
+  {
+    updateDrawFrame();
+  }
 }

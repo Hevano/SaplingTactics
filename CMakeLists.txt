@@ -59,6 +59,12 @@ target_include_directories(
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
 )
 
+target_include_directories(
+    SaplingTactics_lib ${warning_guard}
+    PUBLIC
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/lib>"
+)
+
 target_compile_features(SaplingTactics_lib PUBLIC cxx_std_20)
 
 target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp)
