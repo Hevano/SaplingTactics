@@ -4,8 +4,9 @@ Unit::Unit(const std::string& texturePath)
   : texture(texturePath)
   , rect(0,0,100, 100)
   , team(Unit::TeamEnum::Player)
+  , id(idCount_++) //increment id with each new unit created
 {
-  stats[Stat::Speed] = 1;
+  stats[Stat::Speed] = 100;
   stats[Stat::Health] = 1;
   stats[Stat::Damage] = 1;
   stats[Stat::Morale] = 1;
@@ -18,7 +19,12 @@ const raylib::Vector2& Unit::getMovement() const
 
 void Unit::setMovement(const raylib::Vector2& newMovement)
 {
-  movement = newMovement.Normalize();
+  movement = newMovement;
+}
+
+void Unit::clearMovement()
+{
+  movement = Vector2(rect.x, rect.y);
 }
 
 raylib::Vector2 Unit::getPos() const
@@ -28,8 +34,9 @@ raylib::Vector2 Unit::getPos() const
 
 void Unit::move() {
   if (!active) return;
-  Vector2 move = movement * stats[Stat::Speed] * GetFrameTime();
-
+  Vector2 move = Vector2MoveTowards(Vector2(rect.x, rect.y), movement, stats[Stat::Speed] * GetFrameTime());
+  rect.x = move.x;
+  rect.y = move.y;
 }
 
 void Unit::draw() {

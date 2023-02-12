@@ -1,13 +1,14 @@
 #include "GameEngine.h"
+#include "BehaviourNodes.h"
 
 GameEngine::GameEngine() 
   : m_window(1280, 720, "Game Window")
   , m_screenHeight(720)
-    , m_screenWidth(1280)
+  , m_screenWidth(1280)
 {
   SetTargetFPS(60);
-  units.push_back(Unit("./assets/cloak.png"));
-  units[0].setMovement(Vector2(0.001f, 0));
+  Unit u(Unit::texturePath);
+  AIManager::getInstance().addUnit(u);
 }
 
 void GameEngine::updateDrawFrame() {
@@ -18,8 +19,11 @@ void GameEngine::updateDrawFrame() {
            200,
            20,
            LIGHTGRAY);
-  units[0].move();
-  units[0].draw();
+  AIManager::getInstance().tick();
+  for (auto& [id, unit] : AIManager::getInstance().getUnits()) {
+    unit->move();
+    unit->draw();
+  }
   EndDrawing();
 }
 

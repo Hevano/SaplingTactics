@@ -22,22 +22,27 @@ struct BehaviourNode
 
   std::vector<std::shared_ptr<BehaviourNode>> children;
 
-  std::shared_ptr<BehaviourTree> tree;
+  BehaviourTree* const tree;
 
-  BehaviourNode(BehaviourTree& t);
-  virtual ~BehaviourNode();
-  virtual Status evaluate() = 0;
+  BehaviourNode(BehaviourTree* tree);
+  BehaviourNode(const BehaviourNode& bn) = default;
+  virtual ~BehaviourNode() = default;
+  virtual Status evaluate() { return Status::Failure; };
 };
 
+
+//Needs deep copy
 class BehaviourTree
 {
+friend class AIManager;
+
 private:
   std::shared_ptr<BehaviourNode> m_root;
-  std::shared_ptr<BehaviourNode> m_current;
+  BehaviourNode* m_current = nullptr;
 
 public:
   std::unordered_map<std::string, std::any> blackboard;
-  std::shared_ptr<Unit> actor; //Potential issue, if we need to access Unit-subclass specific members
+  std::weak_ptr<Unit> actor; //Potential issue, if we need to access Unit-subclass specific members
 
 public:
   void tick();

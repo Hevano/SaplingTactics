@@ -7,11 +7,21 @@
 #include <unordered_map>
 #include <string>
 
+typedef unsigned int UnitId;
+
 class Unit
 {
+private:
+  static inline UnitId idCount_ = 0;
+
 public:
   raylib::Texture texture;
   raylib::Rectangle rect;
+  UnitId id;
+
+  //temporary
+  static inline std::string texturePath = "./assets/cloak.png";
+  static inline std::string treePath = "./assets/trees/default.json";
 
   enum Stat
   {
@@ -37,7 +47,8 @@ public:
   raylib::Vector2 movement;
 
   public:
-    Unit(const std::string& texturePath);
+  Unit() = default;
+  Unit(const std::string& texturePath);
 
     //Copy constructor necessary, cannot use std collections (Texture copy assignment operator is deleted)
     Unit(const Unit& u) {
@@ -46,6 +57,7 @@ public:
       stats = u.stats;
       active = u.active;
       rect = u.rect;
+      id = u.id;
     }
 
     //Base classes should always have a virtual deconstructor
@@ -54,6 +66,7 @@ public:
     //Gets and sets the movement, ensuring it is a unit vector
     const raylib::Vector2& getMovement() const;
     void setMovement(const raylib::Vector2& newMovement);
+    void clearMovement();
 
     raylib::Vector2 getPos() const;
 

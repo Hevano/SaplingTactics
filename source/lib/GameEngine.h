@@ -1,5 +1,6 @@
 #pragma once
 #include "Unit.h"
+#include "AIManager.h"
 
 #include "raylib-cpp.hpp"
 
@@ -16,6 +17,4 @@ public:
   GameEngine();
   void updateDrawFrame();
   void start();
-
-  std::vector<Unit> units;
 };
