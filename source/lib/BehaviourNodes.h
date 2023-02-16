@@ -2,6 +2,7 @@
 #include "BehaviourTree.h"
 #include "raylib.hpp"
 #include "Unit.h"
+#include "AIManager.h"
 
 struct SequenceNode : BehaviourNode
 {
@@ -70,10 +71,69 @@ struct AttackTargetNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
   virtual ~AttackTargetNode() override = default;
-
+  float radius = 300.f;
   Status evaluate() override
   {
-    
+    auto& actor = *(tree->actor.lock());
+    auto enemyTeam = (actor.team == Unit::Player) ? Unit::Computer : Unit::Player;
+    auto units = AIManager::getInstance().getUnits();
+    for (auto& id : AIManager::getInstance().getTeamIds(enemyTeam)) {
+      auto& unit = units[id];
+      if (unit->active && actor.rect.GetPosition().Distance(unit->rect.GetPosition()) < radius)
+      {
+        tree->blackboard["AttackTarget"] = std::make_any<UnitId>(unit->id);
+        return status = Status::Success;
+      }
+    }
+    return status = Status::Failure;
+  }
+};
+
+struct ChaseNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~ChaseNode() override = default;
+  float radius = 10.f;
+  Status evaluate() override
+  {
+    if (!tree->blackboard.contains("AttackTarget")) {
+      return status = Status::Failure;
+    }
+
+    auto attackTargetId = std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
+    raylib::Vector2 targetPos = AIManager::getInstance().getUnits()[attackTargetId]->rect.GetPosition();
+    auto& actor = *(tree->actor.lock());
+    if (actor.rect.GetPosition().Distance(targetPos) < radius) {
+      return status = Status::Success;
+    } else {
+      actor.setMovement(targetPos);
+      tree->setCurrent(this);
+      return status = Status::Running;
+    }
+  }
+};
+
+struct MeleeAttackNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~MeleeAttackNode() override = default;
+  float radius = 50.f;
+  Status evaluate() override
+  {
+    if (!tree->blackboard.contains("AttackTarget")) {
+      return status = Status::Failure;
+    }
+
+    auto attackTargetId = std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
+    auto targetUnit = AIManager::getInstance().getUnits()[attackTargetId];
+    auto& actor = *(tree->actor.lock());
+
+    if (actor.rect.GetPosition().Distance(targetUnit->rect.GetPosition()) > radius) {
+      return status = Status::Failure;
+    } 
+
+    actor.adjustTargetStat(Unit::Health, 1, *targetUnit);
+    return status = Status::Success;
   }
 };
 
@@ -110,7 +170,6 @@ struct WaitStartNode : BehaviourNode
   using BehaviourNode::BehaviourNode;
   virtual ~WaitStartNode() override = default;
 
-  double timer = 0;
   Status evaluate() override
   {
     tree->blackboard["WaitStart"] = std::make_any<float>(GetTime());

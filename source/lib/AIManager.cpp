@@ -1,4 +1,5 @@
 #include "AIManager.h"
+#include "BehaviourNodes.h"
 
 AIManager& AIManager::getInstance()
 {
@@ -10,9 +11,10 @@ AIManager& AIManager::getInstance()
 void AIManager::addUnit(Unit unit)
 {
   m_units.emplace(unit.id, std::make_shared<Unit>(unit));
-  loadBTree("");
-  m_trees[unit.id] = &m_cachedTrees[""];
+  loadBTree(std::to_string(unit.id));
+  m_trees[unit.id] = &m_cachedTrees[std::to_string(unit.id)];
   m_trees[unit.id]->actor = m_units[unit.id];
+  m_teams[unit.team].emplace(unit.id);
 }
 
 void AIManager::removeUnit(Unit& unit) {
@@ -31,15 +33,6 @@ const std::unordered_set<UnitId>& AIManager::getTeamIds(Unit::TeamEnum team) con
   return m_teams.at(team);
 }
 
-std::vector<Unit*> AIManager::getTeam(Unit::TeamEnum team)
-{
-  std::vector<Unit*> teamVector;
-  for (auto& id : m_teams[team]) {
-    teamVector.push_back(m_units[id].get());
-  }
-  return std::move(teamVector);
-}
-
 void AIManager::tick()
 {
   for (auto& [id, tree] : m_trees) {
@@ -49,11 +42,33 @@ void AIManager::tick()
 
 BehaviourTree AIManager::loadBTree(const std::string& path)
 {
-  m_cachedTrees[path] = BehaviourTree();
-  m_cachedTrees[path].m_root = std::make_shared<SequenceNode>(&m_cachedTrees[path]);
-  m_cachedTrees[path].m_root->children.push_back(std::make_shared<WanderTargetNode>(&m_cachedTrees[path]));
-  m_cachedTrees[path].m_root->children.push_back(std::make_shared<MoveNode>(&m_cachedTrees[path]));
-  m_cachedTrees[path].m_root->children.push_back(std::make_shared<WaitStartNode>(&m_cachedTrees[path]));
-  m_cachedTrees[path].m_root->children.push_back(std::make_shared<WaitNode>(&m_cachedTrees[path]));
-  return m_cachedTrees[path];
+  if (path == "1") {
+    m_cachedTrees[path] = BehaviourTree();
+    m_cachedTrees[path].m_root =
+        std::make_shared<SequenceNode>(&m_cachedTrees[path]);
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<AttackTargetNode>(&m_cachedTrees[path]));
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<ChaseNode>(&m_cachedTrees[path]));
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<MeleeAttackNode>(&m_cachedTrees[path]));
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<WaitStartNode>(&m_cachedTrees[path]));
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<WaitNode>(&m_cachedTrees[path]));
+    return m_cachedTrees[path];
+  } else {
+    m_cachedTrees[path] = BehaviourTree();
+    m_cachedTrees[path].m_root =
+        std::make_shared<SequenceNode>(&m_cachedTrees[path]);
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<WanderTargetNode>(&m_cachedTrees[path]));
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<MoveNode>(&m_cachedTrees[path]));
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<WaitStartNode>(&m_cachedTrees[path]));
+    m_cachedTrees[path].m_root->children.push_back(
+        std::make_shared<WaitNode>(&m_cachedTrees[path]));
+    return m_cachedTrees[path];
+  }
 }

@@ -24,7 +24,7 @@ void Unit::setMovement(const raylib::Vector2& newMovement)
 
 void Unit::clearMovement()
 {
-  movement = Vector2(rect.x, rect.y);
+  movement = rect.GetPosition();
 }
 
 raylib::Vector2 Unit::getPos() const
@@ -34,9 +34,8 @@ raylib::Vector2 Unit::getPos() const
 
 void Unit::move() {
   if (!active) return;
-  Vector2 move = Vector2MoveTowards(Vector2(rect.x, rect.y), movement, stats[Stat::Speed] * GetFrameTime());
-  rect.x = move.x;
-  rect.y = move.y;
+  Vector2 move = Vector2MoveTowards(rect.GetPosition(), movement, stats[Stat::Speed] * GetFrameTime());
+  rect.SetPosition(move);
 }
 
 void Unit::draw() {
@@ -58,5 +57,6 @@ void Unit::adjustStat(Stat stat, int amount, Unit* source) {
 
 void Unit::adjustTargetStat(Stat stat, int amount, Unit& target) {
   if (!active) return;
+  TraceLog(LOG_DEBUG, "Adusted Stat");
   target.adjustStat(stat, amount, this);
 }

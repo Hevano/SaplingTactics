@@ -1,5 +1,6 @@
 #pragma once
-#include "BehaviourNodes.h"
+#include "Unit.h"
+#include "BehaviourTree.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -42,7 +43,6 @@ public:
 
   std::unordered_map<UnitId, std::shared_ptr<Unit>>& getUnits();
   const std::unordered_set<UnitId>& getTeamIds(Unit::TeamEnum team) const;
-  std::vector<Unit*> getTeam(Unit::TeamEnum team);
 
   void tick();
 

@@ -7,18 +7,28 @@ GameEngine::GameEngine()
   , m_screenWidth(1280)
 {
   SetTargetFPS(60);
-  Unit u(Unit::texturePath);
-  AIManager::getInstance().addUnit(u);
+  Unit u1(Unit::texturePath);
+  u1.rect.x = GetRandomValue(0, 1280);
+  u1.rect.y = GetRandomValue(0, 720);
+  Unit u2(Unit::texturePath);
+  u2.rect.x = GetRandomValue(0, 1280);
+  u2.rect.y = GetRandomValue(0, 720);
+  u2.team = Unit::Computer;
+  Unit u3(Unit::texturePath);
+  u3.rect.x = GetRandomValue(0, 1280);
+  u3.rect.y = GetRandomValue(0, 720);
+  Unit u4(Unit::texturePath);
+  u4.rect.x = GetRandomValue(0, 1280);
+  u4.rect.y = GetRandomValue(0, 720);
+  AIManager::getInstance().addUnit(u1);
+  AIManager::getInstance().addUnit(u2);
+  AIManager::getInstance().addUnit(u3);
+  AIManager::getInstance().addUnit(u4);
 }
 
 void GameEngine::updateDrawFrame() {
   BeginDrawing();
   ClearBackground(RAYWHITE);
-  DrawText("Congrats! You created your first raylib-cpp window!",
-           190,
-           200,
-           20,
-           LIGHTGRAY);
   AIManager::getInstance().tick();
   for (auto& [id, unit] : AIManager::getInstance().getUnits()) {
     unit->move();

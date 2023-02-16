@@ -37,6 +37,7 @@ public:
     Computer
   };
 
+  //This should be private data
   TeamEnum team;
 
   std::unordered_map<Stat, int> stats;
@@ -58,6 +59,7 @@ public:
       active = u.active;
       rect = u.rect;
       id = u.id;
+      team = u.team;
     }
 
     //Base classes should always have a virtual deconstructor
