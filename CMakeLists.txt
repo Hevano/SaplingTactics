@@ -40,6 +40,32 @@ if (NOT raylib_cpp_FOUND)
     FetchContent_MakeAvailable(raylib_cpp)
 endif()
 
+# --- Declare ArborMaster Library (TODO: Move to other repo) ---
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
+file (GLOB adapter_sources  "./source/adapter/*.cpp" "./source/adapter/*.h")
+
+add_library(
+    ArborMaster_adapter OBJECT
+    ${adapter_sources}
+)
+
+target_link_libraries(ArborMaster_adapter PRIVATE nlohmann_json::nlohmann_json)
+
+target_include_directories(
+    ArborMaster_adapter ${warning_guard}
+    PUBLIC
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
+)
+
+target_include_directories(
+    ArborMaster_adapter ${warning_guard}
+    PUBLIC
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/adapter>"
+)
+
 
 
 # ---- Declare library ----
@@ -67,7 +93,7 @@ target_include_directories(
 
 target_compile_features(SaplingTactics_lib PUBLIC cxx_std_20)
 
-target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp)
+target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp ArborMaster_adapter)
 
 # ---- Declare executable ----
 
