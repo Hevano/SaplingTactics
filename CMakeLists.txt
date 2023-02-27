@@ -45,27 +45,6 @@ endif()
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-file (GLOB adapter_sources  "./source/adapter/*.cpp" "./source/adapter/*.h")
-
-add_library(
-    ArborMaster_adapter OBJECT
-    ${adapter_sources}
-)
-
-target_link_libraries(ArborMaster_adapter PRIVATE nlohmann_json::nlohmann_json)
-
-target_include_directories(
-    ArborMaster_adapter ${warning_guard}
-    PUBLIC
-    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
-)
-
-target_include_directories(
-    ArborMaster_adapter ${warning_guard}
-    PUBLIC
-    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/adapter>"
-)
-
 
 
 # ---- Declare library ----
@@ -91,9 +70,15 @@ target_include_directories(
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/lib>"
 )
 
+target_include_directories(
+    SaplingTactics_lib ${warning_guard}
+    PUBLIC
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source/adapter>"
+)
+
 target_compile_features(SaplingTactics_lib PUBLIC cxx_std_20)
 
-target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp ArborMaster_adapter)
+target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp nlohmann_json::nlohmann_json)
 
 # ---- Declare executable ----
 

@@ -1,6 +1,8 @@
 #include "AIManager.h"
 #include "BehaviourNodes.h"
 
+#include "ArborMasterAdapter.h"
+
 AIManager& AIManager::getInstance()
 {
   static AIManager instance;
@@ -42,6 +44,10 @@ void AIManager::tick()
 
 BehaviourTree AIManager::loadBTree(const std::string& path)
 {
+  Adapter a;
+
+  auto x = a.loadTree("C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\treeSample.json");
+
   if (path == "1") {
     m_cachedTrees[path] = BehaviourTree();
     m_cachedTrees[path].m_root =
