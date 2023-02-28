@@ -2,6 +2,8 @@
 #include "Unit.h"
 #include "BehaviourTree.h"
 
+#include "ArborMasterAdapter.h"
+
 #include <unordered_map>
 #include <unordered_set>
 
@@ -48,4 +50,6 @@ public:
 
 private:
   BehaviourTree loadBTree(const std::string& path);
+  void addChildren(BehaviourTree& tree, std::shared_ptr<BehaviourNode> parent, std::shared_ptr<TreeDesignNode> design);
+  std::shared_ptr<BehaviourNode> makeNode(BehaviourTree& tree, const std::string& path, unsigned int id);
 };

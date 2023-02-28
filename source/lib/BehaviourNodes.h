@@ -4,6 +4,7 @@
 #include "Unit.h"
 #include "AIManager.h"
 
+//[ArborMaster]SequenceNode|99|
 struct SequenceNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -27,6 +28,7 @@ struct SequenceNode : BehaviourNode
   }
 };
 
+//[ArborMaster]SelectorNode|99|
 struct SelectorNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -50,6 +52,7 @@ struct SelectorNode : BehaviourNode
   }
 };
 
+//[ArborMaster]WanderTargetNode|0|MoveTarget|
 struct WanderTargetNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -67,6 +70,7 @@ struct WanderTargetNode : BehaviourNode
   }
 };
 
+//[ArborMaster]AttackTargetNode|0|AttackTarget|
 struct AttackTargetNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -89,6 +93,8 @@ struct AttackTargetNode : BehaviourNode
   }
 };
 
+
+//[ArborMaster]ChaseNode|0|AttackTarget|
 struct ChaseNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -113,6 +119,7 @@ struct ChaseNode : BehaviourNode
   }
 };
 
+//[ArborMaster]MeleeAttackNode|0|AttackTarget|
 struct MeleeAttackNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -137,6 +144,7 @@ struct MeleeAttackNode : BehaviourNode
   }
 };
 
+//[ArborMaster]MoveNode|0|MoveTarget|
 struct MoveNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -165,6 +173,8 @@ struct MoveNode : BehaviourNode
   }
 };
 
+
+//[ArborMaster]WaitStartNode|0|WaitTimestamp|
 struct WaitStartNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -172,11 +182,12 @@ struct WaitStartNode : BehaviourNode
 
   Status evaluate() override
   {
-    tree->blackboard["WaitStart"] = std::make_any<float>(GetTime());
+    tree->blackboard["WaitTimestamp"] = std::make_any<float>(GetTime());
     return status = Status::Success;
   }
 };
 
+//[ArborMaster]WaitNode|0|WaitTimestamp|
 struct WaitNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
@@ -184,16 +195,16 @@ struct WaitNode : BehaviourNode
 
   Status evaluate() override
   {
-    if (!tree->blackboard.contains("WaitStart")) {
+    if (!tree->blackboard.contains("WaitTimestamp")) {
       return status = Status::Success;
     }
 
-    auto startTime = std::any_cast<float>(tree->blackboard["WaitStart"]);
+    auto startTime = std::any_cast<float>(tree->blackboard["WaitTimestamp"]);
     if (status != Status::Running) {
       tree->setCurrent(this);
       return status = Status::Running;
     } else if (startTime + 5 < GetTime()) {  // Wait for 5 seconds (hard coded)
-      tree->blackboard.erase("WaitStart");
+      tree->blackboard.erase("WaitTimestamp");
       tree->setCurrent(nullptr);
       return status = Status::Success;
     }

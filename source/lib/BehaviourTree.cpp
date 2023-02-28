@@ -13,8 +13,9 @@ void BehaviourTree::setCurrent(BehaviourNode* newCurrent)
   m_current = newCurrent;
 }
 
-BehaviourNode::BehaviourNode(BehaviourTree* tree)
+BehaviourNode::BehaviourNode(BehaviourTree* tree, unsigned int id)
   : tree(tree)
   , status(Status::Failure)
+  , nodeId(id)
 {
 }

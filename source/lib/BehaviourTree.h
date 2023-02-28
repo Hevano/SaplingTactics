@@ -18,13 +18,15 @@ class Unit;
 
 struct BehaviourNode
 {
+  unsigned int nodeId;
+
   Status status;
 
   std::vector<std::shared_ptr<BehaviourNode>> children;
 
   BehaviourTree* const tree;
 
-  BehaviourNode(BehaviourTree* tree);
+  BehaviourNode(BehaviourTree* tree, unsigned int id = 0);
   BehaviourNode(const BehaviourNode& bn) = default;
   virtual ~BehaviourNode() = default;
   virtual Status evaluate() { return Status::Failure; };

@@ -1,8 +1,6 @@
 #include "AIManager.h"
 #include "BehaviourNodes.h"
 
-#include "ArborMasterAdapter.h"
-
 AIManager& AIManager::getInstance()
 {
   static AIManager instance;
@@ -46,11 +44,19 @@ BehaviourTree AIManager::loadBTree(const std::string& path)
 {
   Adapter a;
 
-  auto x = a.loadTree("C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\treeSample.json");
+  auto x = a.loadTree("C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\hunterTree.json");
 
   if (path == "1") {
     m_cachedTrees[path] = BehaviourTree();
-    m_cachedTrees[path].m_root =
+
+    m_cachedTrees[path].m_root = makeNode(m_cachedTrees[path], x->name, x->nodeId);
+
+    for (auto child : x->children) {
+      addChildren(m_cachedTrees[path], m_cachedTrees[path].m_root, child);
+    }
+
+
+    /*m_cachedTrees[path].m_root =
         std::make_shared<SequenceNode>(&m_cachedTrees[path]);
     m_cachedTrees[path].m_root->children.push_back(
         std::make_shared<AttackTargetNode>(&m_cachedTrees[path]));
@@ -61,7 +67,7 @@ BehaviourTree AIManager::loadBTree(const std::string& path)
     m_cachedTrees[path].m_root->children.push_back(
         std::make_shared<WaitStartNode>(&m_cachedTrees[path]));
     m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<WaitNode>(&m_cachedTrees[path]));
+        std::make_shared<WaitNode>(&m_cachedTrees[path]));*/
     return m_cachedTrees[path];
   } else {
     m_cachedTrees[path] = BehaviourTree();
@@ -77,4 +83,31 @@ BehaviourTree AIManager::loadBTree(const std::string& path)
         std::make_shared<WaitNode>(&m_cachedTrees[path]));
     return m_cachedTrees[path];
   }
+}
+
+void AIManager::addChildren(BehaviourTree& tree, std::shared_ptr<BehaviourNode> parent, std::shared_ptr<TreeDesignNode> design) {
+  parent->children.push_back(makeNode(tree, design->name, design->nodeId));
+  for (auto child : design->children) {
+    addChildren(tree, parent->children.back(), child);
+  }
+}
+
+std::shared_ptr<BehaviourNode> AIManager::makeNode(BehaviourTree& tree, const std::string& name, unsigned int id)
+{
+  static std::unordered_map<std::string, std::function<std::shared_ptr<BehaviourNode>(BehaviourTree&, unsigned int)>> constructors;
+
+  if (constructors.size() == 0) {
+    constructors.emplace("SequenceNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<SequenceNode>(&t, i); });
+    constructors.emplace("SelectorNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<SelectorNode>(&t, i); });
+    constructors.emplace("WanderTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WanderTargetNode>(&t, i); });
+    constructors.emplace("AttackTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<AttackTargetNode>(&t, i); });
+    constructors.emplace("ChaseNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<ChaseNode>(&t, i); });
+    constructors.emplace("MeleeAttackNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<MeleeAttackNode>(&t, i); });
+    constructors.emplace("MoveNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<MoveNode>(&t, i); });
+    constructors.emplace("WaitStartNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WaitStartNode>(&t, i); });
+    constructors.emplace("WaitNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WaitNode>(&t, i); });
+  }
+  
+
+  return constructors[name](tree, id);
 }

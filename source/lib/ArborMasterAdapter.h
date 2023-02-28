@@ -14,7 +14,8 @@ public:
   std::shared_ptr<TreeDesignNode> getSubTree(json& data)
   {
     int id = data["id"].get<int>();
-    std::shared_ptr<TreeDesignNode> root = std::make_shared<TreeDesignNode>(id);
+    auto name = data["name"].get<std::string>();
+    std::shared_ptr<TreeDesignNode> root = std::make_shared<TreeDesignNode>(name, id);
 
 
     auto dump = data.dump();
