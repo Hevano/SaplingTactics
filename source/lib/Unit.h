@@ -73,10 +73,10 @@ public:
     raylib::Vector2 getPos() const;
 
     //Adjusts unit position based on movement vector and time
-    void move();
+    virtual void move();
 
     //Draws the unit on the screen
-    void draw();
+    virtual void draw();
 
     //Adusts units stat. Source may be null
     virtual void adjustStat(Stat stat, int amount, Unit* source);

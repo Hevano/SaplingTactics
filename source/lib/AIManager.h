@@ -1,7 +1,7 @@
 #pragma once
 #include "Unit.h"
 #include "BehaviourTree.h"
-
+#include "Projectile.h"
 #include <unordered_map>
 #include <unordered_set>
 
@@ -29,6 +29,8 @@ private:
   std::unordered_map<std::string, BehaviourTree> m_cachedTrees;
 
 public:
+  std::vector<Projectile> projectiles;
+
   void addUnit(Unit unit);
 
   //Template alternative

@@ -10,7 +10,7 @@ GameEngine::GameEngine()
   Unit u1(Unit::texturePath);
   u1.rect.x = GetRandomValue(0, 1280);
   u1.rect.y = GetRandomValue(0, 720);
-  Unit u2(Unit::texturePath);
+  RangedUnit u2(Unit::texturePath);
   u2.rect.x = GetRandomValue(0, 1280);
   u2.rect.y = GetRandomValue(0, 720);
   u2.team = Unit::Computer;
@@ -33,6 +33,10 @@ void GameEngine::updateDrawFrame() {
   for (auto& [id, unit] : AIManager::getInstance().getUnits()) {
     unit->move();
     unit->draw();
+  }
+  //Temp for testing
+  for (auto& p : AIManager::getInstance().projectiles) {
+    p.update();
   }
   EndDrawing();
 }

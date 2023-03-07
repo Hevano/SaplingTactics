@@ -2,6 +2,8 @@
 #include "BehaviourTree.h"
 #include "raylib.hpp"
 #include "Unit.h"
+#include "RangedUnit.h"
+#include "Projectile.h"
 #include "AIManager.h"
 
 struct SequenceNode : BehaviourNode
@@ -71,7 +73,7 @@ struct AttackTargetNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
   virtual ~AttackTargetNode() override = default;
-  float radius = 300.f;
+  float radius = 600.f;
   Status evaluate() override
   {
     auto& actor = *(tree->actor.lock());
@@ -132,7 +134,41 @@ struct MeleeAttackNode : BehaviourNode
       return status = Status::Failure;
     } 
 
-    actor.adjustTargetStat(Unit::Health, 1, *targetUnit);
+    actor.adjustTargetStat(Unit::Health, -1, *targetUnit);
+    //raylib::Vector2 projectileVelocity(Vector2Normalize(actor.getPos() - targetUnit->getPos()));
+    
+    //projectileVelocity = projectileVelocity * actor.stats[Unit::Speed];
+    //new Projectile(tree->actor.lock().get(), projectileVelocity, actor.getPos(), 1, 200);
+    return status = Status::Success;
+  }
+};
+
+struct RangedAttackNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~RangedAttackNode() override = default;
+  float radius = 50.f;
+  Status evaluate() override
+  {
+    if (!tree->blackboard.contains("AttackTarget")) {
+      return status = Status::Failure;
+    }
+
+    auto attackTargetId =
+        std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
+    auto targetUnit = AIManager::getInstance().getUnits()[attackTargetId];
+    auto& actor = *(tree->actor.lock());
+
+    if (actor.rect.GetPosition().Distance(targetUnit->rect.GetPosition())
+        > radius) {
+      return status = Status::Failure;
+    }
+
+    raylib::Vector2 projectileVelocity(Vector2Normalize(actor.getPos() - targetUnit->getPos()));
+
+    projectileVelocity = projectileVelocity * actor.stats[Unit::Speed];
+    auto p = Projectile(tree->actor.lock().get(), projectileVelocity, actor.getPos(), -1,20);
+    AIManager::getInstance().projectiles.push_back(p);
     return status = Status::Success;
   }
 };

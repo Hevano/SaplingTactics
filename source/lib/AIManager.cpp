@@ -49,9 +49,7 @@ BehaviourTree AIManager::loadBTree(const std::string& path)
     m_cachedTrees[path].m_root->children.push_back(
         std::make_shared<AttackTargetNode>(&m_cachedTrees[path]));
     m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<ChaseNode>(&m_cachedTrees[path]));
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<MeleeAttackNode>(&m_cachedTrees[path]));
+        std::make_shared<RangedAttackNode>(&m_cachedTrees[path]));
     m_cachedTrees[path].m_root->children.push_back(
         std::make_shared<WaitStartNode>(&m_cachedTrees[path]));
     m_cachedTrees[path].m_root->children.push_back(
