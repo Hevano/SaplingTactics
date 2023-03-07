@@ -50,6 +50,12 @@ struct ActorUpdate {
   unsigned int status;
 };
 
+//struct shm_remove
+//{
+//  shm_remove() { shared_memory_object::remove("MySharedMemory"); }
+//  ~shm_remove() { shared_memory_object::remove("MySharedMemory"); }
+//} remover;
+
 class Debugger {
 public:
 
@@ -57,6 +63,11 @@ public:
   bool init()
   {
     ipc::message_queue::remove("NodeUpdateMessageQueue");
+    //ipc::managed_shared_memory segment(ipc::create_only, "MySharedMemory", 65536);
+
+    //Alias an STL-like allocator of ints that allocates ints from the segment
+    /*typedef allocator<int, managed_shared_memory::segment_manager>
+      ShmemAllocator;*/
     
     return true;
   }
