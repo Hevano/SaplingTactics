@@ -4,11 +4,14 @@
 
 #include <nlohmann/json.hpp>
 #include <boost/interprocess/ipc/message_queue.hpp>
+#include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/containers/flat_map.hpp>
 
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <memory>
+#include <unordered_map>
 
 
 using json = nlohmann::json;
@@ -57,24 +60,69 @@ struct ActorUpdate {
 //} remover;
 
 class Debugger {
+private:
+    //Max number of bytes our shared memory buffer can hold
+    const int MAX_BYTES = 65536;
+
+    typedef ipc::allocator<std::pair<const std::string, std::string>, ipc::managed_shared_memory::segment_manager> bb_allocator_type;
+    typedef ipc::flat_map<std::string, std::string, std::less<std::string>, bb_allocator_type> bb_map_type;
+
+    typedef ipc::allocator<std::pair<unsigned int, std::string>, ipc::managed_shared_memory::segment_manager> actorid_allocator_type;
+    typedef ipc::flat_map<unsigned int, std::string, std::less<unsigned int>, bb_allocator_type> actorid_map_type;
+
+    ipc::managed_shared_memory m_segment;
+    std::unique_ptr<bb_map_type> m_blackBoardMap;
+    std::unique_ptr<actorid_map_type> m_actorIdMap;
+
+    unsigned int m_currentActorId;
+
 public:
 
   //Initiates IPC with the designer, returning false if it fails
   bool init()
   {
+    //clears existing message queues
     ipc::message_queue::remove("NodeUpdateMessageQueue");
-    //ipc::managed_shared_memory segment(ipc::create_only, "MySharedMemory", 65536);
+    ipc::message_queue::remove("ActorSelectMessageQueue");
 
-    //Alias an STL-like allocator of ints that allocates ints from the segment
-    /*typedef allocator<int, managed_shared_memory::segment_manager>
-      ShmemAllocator;*/
+    //create segment and the flat maps inside of it
+    m_segment = ipc::managed_shared_memory (ipc::create_only, "DebuggerSharedMemory", 65536);
+    m_blackBoardMap.reset(m_segment.find_or_construct<bb_map_type>("BlackboardMap")(m_segment.get_segment_manager()));
+    m_actorIdMap.reset(m_segment.find_or_construct<actorid_map_type>("ActorIdMap")(m_segment.get_segment_manager()));
     
     return true;
   }
 
+  //returns true if actor has changed, in which case blackboard should be updated
+  bool tick() {
+    size_t recv_size;
+    unsigned int priority;
+    unsigned int *id = nullptr;
+
+    ipc::message_queue mq(ipc::open_or_create, "ActorSelectMessageQueue", 100, sizeof(unsigned int));
+    try {
+      mq.receive(id, sizeof(unsigned int), recv_size, priority);
+      m_currentActorId = *id;
+      return true;
+    }
+    catch (ipc::interprocess_exception& ex) {
+      //throws error if queue is empty
+    }
+    return false;
+  }
+
+  unsigned int getCurrentActorId() const {
+    return m_currentActorId;
+  }
+
   ~Debugger()
   {
+    // Deallocate the object in the shared memory segment
+    m_segment.destroy<actorid_map_type>("ActorIdMap");
+    m_segment.destroy<bb_map_type>("BlackboardMap");
 
+    // Deallocate the shared memory segment
+    ipc::shared_memory_object::remove("DebuggerSharedMemory");
   }
 
   //Updates the running status of a node
@@ -83,6 +131,8 @@ public:
     unsigned int actorId,
     unsigned int status)
   {
+    //Only update the message queue if we are currently watching that actor
+    if (actorId != m_currentActorId) return;
     ipc::message_queue  msgQueue(ipc::open_or_create, "NodeUpdateMessageQueue",
       100,
       sizeof(ActorUpdate)
@@ -104,19 +154,14 @@ public:
     std::string key,
     std::string value)
   {
-
+      m_blackBoardMap->insert({ "key1", "value1" });
+      m_blackBoardMap->insert({ "key2", "value2" });
   };
 
   //declares that there is an actor who uses a tree at the path
-  void createDebugActor(unsigned actorId, std::string tree_path) 
+  void createDebugActor(unsigned int actorId, std::string treePath) 
   {
-  
-  };
-
-  //declares that 
-  void deleteDebugActor(unsigned actorId)
-  {
-
+    m_actorIdMap->insert({ actorId, treePath });
   };
 
 };
