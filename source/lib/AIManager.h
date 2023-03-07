@@ -12,7 +12,9 @@ class AIManager
   //Singleton Pattern
 private:
   static inline AIManager* instance_ = nullptr;
-  AIManager() = default;
+  AIManager() {
+    d.init();
+  };
   ~AIManager() = default;
 
 public:
@@ -22,6 +24,9 @@ public:
   static AIManager& getInstance();
 
 private:
+  Debugger d;
+
+
   std::unordered_map<UnitId, std::shared_ptr<Unit>> m_units;
   //Handy lookups
   std::unordered_map<UnitId, BehaviourTree*> m_trees;

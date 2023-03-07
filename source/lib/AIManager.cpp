@@ -36,6 +36,7 @@ const std::unordered_set<UnitId>& AIManager::getTeamIds(Unit::TeamEnum team) con
 void AIManager::tick()
 {
   for (auto& [id, tree] : m_trees) {
+    d.updateDebugStatus(id, 0,0);
     tree->tick();
   }
 }

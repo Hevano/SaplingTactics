@@ -1,5 +1,6 @@
 #include "BehaviourTree.h"
 
+
 void BehaviourTree::tick() {
   if (m_current && m_current->status == Status::Running) {
     m_current->evaluate();

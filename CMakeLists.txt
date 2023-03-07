@@ -45,6 +45,13 @@ endif()
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
+FetchContent_Declare(
+  Boost
+  GIT_REPOSITORY https://github.com/boostorg/boost.git
+  GIT_TAG boost-1.80.0
+)
+FetchContent_MakeAvailable(Boost)
+
 
 
 # ---- Declare library ----
@@ -78,7 +85,7 @@ target_include_directories(
 
 target_compile_features(SaplingTactics_lib PUBLIC cxx_std_20)
 
-target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp nlohmann_json::nlohmann_json)
+target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp nlohmann_json::nlohmann_json Boost::interprocess)
 
 # ---- Declare executable ----
 
