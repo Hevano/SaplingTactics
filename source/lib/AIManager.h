@@ -14,7 +14,7 @@ private:
   static inline AIManager* instance_ = nullptr;
   AIManager() {
     std::unordered_map<unsigned int, std::string> mappings = { {0, "fake unit"} };
-    d.init(mappings);
+    d.init();
   };
   ~AIManager() = default;
 

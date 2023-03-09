@@ -12,6 +12,7 @@ void AIManager::addUnit(Unit unit)
 {
   m_units.emplace(unit.id, std::make_shared<Unit>(unit));
   loadBTree(std::to_string(unit.id));
+  d.createDebugActor(unit.id, "LOOOOOOOOOOOOOOONGPath");
   m_trees[unit.id] = &m_cachedTrees[std::to_string(unit.id)];
   m_trees[unit.id]->actor = m_units[unit.id];
   m_teams[unit.team].emplace(unit.id);
