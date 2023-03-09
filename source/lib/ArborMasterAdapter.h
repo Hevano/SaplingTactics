@@ -128,6 +128,10 @@ public:
     m_segment.destroy<MyFlatMap>("ActorIdMap");
     m_segment.destroy<bb_map_type>("BlackboardMap");
 
+    //Release the flat map pointers rather than allow unique_ptr to free them. TODO: add custom deleter to handle this properly
+    m_actorIdMap.release();
+    m_blackBoardMap.release();
+
     // Deallocate the shared memory segment
     ipc::shared_memory_object::remove("DebuggerSharedMemory");
   }
