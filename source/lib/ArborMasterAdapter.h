@@ -66,18 +66,18 @@ private:
     //Max number of bytes our shared memory buffer can hold
     const int MAX_BYTES = 65536;
 
-    typedef ipc::allocator<std::pair<const unsigned int, ipc::basic_string<char>>, ipc::managed_shared_memory::segment_manager> ShmemAllocator;
-    typedef ipc::flat_map<unsigned int, ipc::basic_string<char>, std::less<unsigned int>, ShmemAllocator> MyFlatMap;
+    typedef ipc::allocator<std::pair<const unsigned int, ipc::basic_string<char>>, ipc::managed_shared_memory::segment_manager> actorid_allocator;
+    typedef ipc::flat_map<unsigned int, ipc::basic_string<char>, std::less<unsigned int>, actorid_allocator> actorid_map_type;
 
-    typedef ipc::allocator<std::pair<const std::string, std::string>, ipc::managed_shared_memory::segment_manager> bb_allocator_type;
-    typedef ipc::flat_map<std::string, std::string, std::less<std::string>, bb_allocator_type> bb_map_type;
+    typedef ipc::allocator<std::pair<const ipc::basic_string<char>, ipc::basic_string<char>>, ipc::managed_shared_memory::segment_manager> bb_allocator_type;
+    typedef ipc::flat_map<ipc::basic_string<char>, ipc::basic_string<char>, std::less<ipc::basic_string<char>>, bb_allocator_type> bb_map_type;
 
     //typedef ipc::allocator<std::pair<unsigned int, char_string_type>, ipc::managed_shared_memory::segment_manager> actorid_allocator_type;
     //typedef ipc::flat_map<unsigned int, char_string_type, std::less<unsigned int>, actorid_allocator_type> actorid_map_type;
 
     ipc::managed_shared_memory m_segment;
     std::unique_ptr<bb_map_type> m_blackBoardMap;
-    std::unique_ptr<MyFlatMap> m_actorIdMap;
+    std::unique_ptr<actorid_map_type> m_actorIdMap;
 
     unsigned int m_currentActorId;
 
@@ -95,22 +95,26 @@ public:
     //create segment and the flat maps inside of it
     m_segment = ipc::managed_shared_memory (ipc::create_only, "DebuggerSharedMemory", 65536);
     m_blackBoardMap.reset(m_segment.find_or_construct<bb_map_type>("BlackboardMap")(m_segment.get_segment_manager()));
-    m_actorIdMap.reset(m_segment.find_or_construct<MyFlatMap>("ActorIdMap")(m_segment.get_segment_manager()));
+    m_actorIdMap.reset(m_segment.find_or_construct<actorid_map_type>("ActorIdMap")(m_segment.get_segment_manager()));
     
     return true;
   }
 
   //returns true if actor has changed, in which case blackboard should be updated
   bool tick() {
-    size_t recv_size;
+    ipc::message_queue::size_type recv_size;
     unsigned int priority;
-    unsigned int *id = nullptr;
+    unsigned int id = 0;
 
     ipc::message_queue mq(ipc::open_or_create, "ActorSelectMessageQueue", 100, sizeof(unsigned int));
     try {
-      mq.receive(id, sizeof(unsigned int), recv_size, priority);
-      m_currentActorId = *id;
-      return true;
+      if (mq.get_num_msg() > 0) {
+        mq.receive(&id, sizeof(id), recv_size, priority);
+        if (recv_size == sizeof(id)) {
+          m_currentActorId = id;
+          return true;
+        }
+      }
     }
     catch (ipc::interprocess_exception& ex) {
       //throws error if queue is empty
@@ -125,7 +129,7 @@ public:
   ~Debugger()
   {
     // Deallocate the object in the shared memory segment
-    m_segment.destroy<MyFlatMap>("ActorIdMap");
+    m_segment.destroy<actorid_map_type>("ActorIdMap");
     m_segment.destroy<bb_map_type>("BlackboardMap");
 
     //Release the flat map pointers rather than allow unique_ptr to free them. TODO: add custom deleter to handle this properly
@@ -165,8 +169,30 @@ public:
     std::string key,
     std::string value)
   {
-      m_blackBoardMap->insert({ "key1", "value1" });
-      m_blackBoardMap->insert({ "key2", "value2" });
+    if (key.empty()) {
+      return;
+    }
+    else if (value.empty()) {
+      m_blackBoardMap->erase(ipc::basic_string<char>(key.c_str()));
+    }
+    else {
+      auto keyBoostString = ipc::basic_string<char>(key.c_str());
+      if (m_blackBoardMap->contains(keyBoostString))
+      {
+        m_blackBoardMap->at(keyBoostString) = ipc::basic_string<char>(value.c_str());
+      }
+      else {
+        m_blackBoardMap->insert({ keyBoostString, ipc::basic_string<char>(value.c_str()) });
+      }
+      
+    }
+  };
+
+  void updateDebugBlackboard(
+    unsigned int actorId,
+    std::pair<std::string, std::string> keyValue)
+  {
+    updateDebugBlackboard(actorId, keyValue.first, keyValue.second);
   };
 
   //declares that there is an actor who uses a tree at the path
@@ -176,6 +202,14 @@ public:
     auto x = m_actorIdMap->at(actorId);
     std::cout << x << std::endl;
   };
+
+  void resetDebugBlackboard(const std::unordered_map<std::string, std::string>& newBlackboard)
+  {
+    m_blackBoardMap->clear();
+    for (auto& [key, value] : newBlackboard) {
+      m_blackBoardMap->insert({ ipc::basic_string<char>(key.c_str()), ipc::basic_string<char>(value.c_str()) });
+    }
+  }
 
 };
   

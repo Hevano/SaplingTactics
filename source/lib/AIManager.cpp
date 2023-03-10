@@ -1,6 +1,8 @@
 #include "AIManager.h"
 #include "BehaviourNodes.h"
 
+#include <sstream>
+
 AIManager& AIManager::getInstance()
 {
   static AIManager instance;
@@ -36,10 +38,23 @@ const std::unordered_set<UnitId>& AIManager::getTeamIds(Unit::TeamEnum team) con
 
 void AIManager::tick()
 {
+  //If a new thing is selected, we have to change out the blackboard (could require some synchronization)
+  if (d.tick()) {
+    auto tree = m_trees[d.getCurrentActorId()];
+    std::ostringstream oss;
+    std::unordered_map<std::string, std::string> stringBlackboard = tree->getStringBlackboard();
+    d.resetDebugBlackboard(stringBlackboard);
+  }
   for (auto& [id, tree] : m_trees) {
     d.updateDebugStatus(id, 0,0);
     tree->tick();
   }
+}
+
+void AIManager::updateDebugger(UnitId unitId, const std::string& key)
+{
+  if (d.getCurrentActorId() != unitId) return;
+  d.updateDebugBlackboard(unitId, m_trees[unitId]->getStringBlackboardKey(key));
 }
 
 BehaviourTree AIManager::loadBTree(const std::string& path)

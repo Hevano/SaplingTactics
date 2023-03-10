@@ -35,6 +35,7 @@ struct BehaviourNode
 
 //Needs deep copy
 class BehaviourTree
+
 {
 friend class AIManager;
 
@@ -49,4 +50,8 @@ public:
 public:
   void tick();
   void setCurrent(BehaviourNode* newCurrent);
+  std::unordered_map<std::string, std::string> getStringBlackboard();
+  std::pair<std::string, std::string> getStringBlackboardKey(const std::string& key, const std::any& value);
+  std::pair<std::string, std::string> getStringBlackboardKey(const std::string& key);
+  unsigned int getActorId() const;
 };

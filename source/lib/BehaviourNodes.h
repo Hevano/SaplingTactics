@@ -63,8 +63,9 @@ struct WanderTargetNode : BehaviourNode
     if (!tree->blackboard.contains("MoveTarget")
         || std::any_cast<raylib::Vector2>(tree->blackboard["MoveTarget"]).CheckCollision(tree->actor.lock()->rect))
     {
-      tree->blackboard["MoveTarget"] = std::make_any<raylib::Vector2>(
-          raylib::Vector2(GetRandomValue(0, 1280), GetRandomValue(0, 720)));
+      raylib::Vector2 v(GetRandomValue(0, 1280), GetRandomValue(0, 720));
+      tree->blackboard["MoveTarget"] = std::make_any<raylib::Vector2>(v);
+      AIManager::getInstance().updateDebugger(tree->getActorId(), "MoveTarget");
     }
     return status = Status::Success;
   }
@@ -86,6 +87,7 @@ struct AttackTargetNode : BehaviourNode
       if (unit->active && actor.rect.GetPosition().Distance(unit->rect.GetPosition()) < radius)
       {
         tree->blackboard["AttackTarget"] = std::make_any<UnitId>(unit->id);
+        AIManager::getInstance().updateDebugger(tree->getActorId(), "AttackTarget");
         return status = Status::Success;
       }
     }
@@ -183,6 +185,7 @@ struct WaitStartNode : BehaviourNode
   Status evaluate() override
   {
     tree->blackboard["WaitTimestamp"] = std::make_any<float>(GetTime());
+    AIManager::getInstance().updateDebugger(tree->getActorId(), "WaitTimestamp");
     return status = Status::Success;
   }
 };
@@ -205,6 +208,7 @@ struct WaitNode : BehaviourNode
       return status = Status::Running;
     } else if (startTime + 5 < GetTime()) {  // Wait for 5 seconds (hard coded)
       tree->blackboard.erase("WaitTimestamp");
+      AIManager::getInstance().updateDebugger(tree->getActorId(), "WaitTimestamp");
       tree->setCurrent(nullptr);
       return status = Status::Success;
     }

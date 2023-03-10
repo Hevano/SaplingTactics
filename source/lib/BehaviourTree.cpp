@@ -1,5 +1,11 @@
 #include "BehaviourTree.h"
+#include "Unit.h"
 
+#include "raylib-cpp.hpp"
+
+#include <unordered_set>
+#include <typeinfo>
+#include <format>
 
 void BehaviourTree::tick() {
   if (m_current && m_current->status == Status::Running) {
@@ -12,6 +18,56 @@ void BehaviourTree::tick() {
 void BehaviourTree::setCurrent(BehaviourNode* newCurrent)
 {
   m_current = newCurrent;
+}
+
+std::unordered_map<std::string, std::string> BehaviourTree::getStringBlackboard()
+{
+  std::unordered_map<std::string, std::string> map;
+
+  for (auto& [key, value] : blackboard) {
+    if (!value.has_value()) continue;
+
+    map.emplace(getStringBlackboardKey(key, value));
+  }
+
+  return map;
+}
+
+std::pair<std::string, std::string> BehaviourTree::getStringBlackboardKey(const std::string& key)
+{
+  if (!blackboard.contains(key)) return std::pair<std::string, std::string>(key, ""); //removes the key from IPC
+  return getStringBlackboardKey(key, blackboard.at(key));
+}
+
+unsigned int BehaviourTree::getActorId() const
+{
+  auto& a = *(actor.lock());
+  return a.id;
+}
+
+std::pair<std::string, std::string> BehaviourTree::getStringBlackboardKey(const std::string& key, const std::any& value)
+{
+  if (value.type() == typeid(int)) {
+    return std::make_pair(key, std::to_string(std::any_cast<int>(value)));
+  }
+  if (value.type() == typeid(unsigned int)) {
+    return std::make_pair(key, std::to_string(std::any_cast<unsigned int>(value)));
+  }
+  else if (value.type() == typeid(float)) {
+    return std::make_pair(key, std::to_string(std::any_cast<float>(value)));
+
+  }
+  else if ((value.type() == typeid(std::string))) {
+    return std::make_pair(key, std::any_cast<std::string>(value));
+  }
+  else if ((value.type() == typeid(raylib::Vector2))) {
+    raylib::Vector2 v = std::any_cast<raylib::Vector2>(value);
+    return std::make_pair(key, std::format("x: {}, y: {}", v.x, v.y));
+  }
+  else {
+    //If we have not prepared a value-string conversion, use the type name
+    return std::make_pair(key, value.type().name());
+  }
 }
 
 BehaviourNode::BehaviourNode(BehaviourTree* tree, unsigned int id)

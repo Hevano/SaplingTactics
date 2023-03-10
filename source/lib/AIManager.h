@@ -54,6 +54,8 @@ public:
 
   void tick();
 
+  void updateDebugger(UnitId unitId, const std::string& key);
+
 private:
   BehaviourTree loadBTree(const std::string& path);
   void addChildren(BehaviourTree& tree, std::shared_ptr<BehaviourNode> parent, std::shared_ptr<TreeDesignNode> design);
