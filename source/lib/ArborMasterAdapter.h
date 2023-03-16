@@ -37,11 +37,13 @@ public:
     return root;
   }
 
-  std::shared_ptr<TreeDesignNode> loadTree(const std::string& path)
+  std::shared_ptr<TreeDesignNode> loadTree(const std::string& path, std::string& debugPath)
   {
     std::ifstream stream(path);
     json data;
     stream >> data;
+
+    debugPath = data["debugPath"].get<std::string>();
 
     return getSubTree(data["root"]);
   }
@@ -141,7 +143,7 @@ public:
   }
 
   //Updates the running status of a node
-  void updateDebugStatus(
+  void updateNodeStatus(
     unsigned int nodeId,
     unsigned int actorId,
     unsigned int status)

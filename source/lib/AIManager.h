@@ -30,7 +30,7 @@ private:
 
   std::unordered_map<UnitId, std::shared_ptr<Unit>> m_units;
   //Handy lookups
-  std::unordered_map<UnitId, BehaviourTree*> m_trees;
+  std::unordered_map<UnitId, BehaviourTree> m_trees;
   std::unordered_map<Unit::TeamEnum, std::unordered_set<UnitId>> m_teams;
 
   //Loads trees from disk once and caches here
@@ -57,7 +57,7 @@ public:
   void updateDebugger(UnitId unitId, const std::string& key);
 
 private:
-  BehaviourTree loadBTree(const std::string& path);
+  BehaviourTree& loadBTree(const std::string& path, UnitId unitId);
   void addChildren(BehaviourTree& tree, std::shared_ptr<BehaviourNode> parent, std::shared_ptr<TreeDesignNode> design);
   std::shared_ptr<BehaviourNode> makeNode(BehaviourTree& tree, const std::string& path, unsigned int id);
 };

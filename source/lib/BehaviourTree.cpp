@@ -7,6 +7,24 @@
 #include <typeinfo>
 #include <format>
 
+std::shared_ptr<BehaviourNode> BehaviourTree::copyTree(BehaviourTree& newTree, const std::shared_ptr<BehaviourNode> root) const
+{
+  std::shared_ptr<BehaviourNode> newRoot = root->clone(&newTree);
+  newRoot->children.reserve(root->children.size());
+  for (const auto& child : root->children) {
+    newRoot->children.push_back(copyTree(newTree, child));
+  }
+  return newRoot;
+}
+
+BehaviourTree::BehaviourTree(const BehaviourTree& bt) 
+  : blackboard(bt.blackboard)
+  , actor(bt.actor)
+  , debugPath(bt.debugPath)
+{
+  m_root = bt.copyTree(*this, bt.m_root);
+}
+
 void BehaviourTree::tick() {
   if (m_current && m_current->status == Status::Running) {
     m_current->evaluate();
@@ -75,4 +93,9 @@ BehaviourNode::BehaviourNode(BehaviourTree* tree, unsigned int id)
   , status(Status::Failure)
   , nodeId(id)
 {
+}
+
+std::shared_ptr<BehaviourNode> BehaviourNode::clone(BehaviourTree* bt)
+{
+  return std::make_shared<BehaviourNode>(BehaviourNode(bt, nodeId));
 }

@@ -10,13 +10,14 @@ AIManager& AIManager::getInstance()
   return *instance_;
 }
 
+//TODO: Replace with a factory class
 void AIManager::addUnit(Unit unit)
 {
+  std::string path = "C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\wanderDesignExport.json";
   m_units.emplace(unit.id, std::make_shared<Unit>(unit));
-  loadBTree(std::to_string(unit.id));
-  d.createDebugActor(unit.id, "LOOOOOOOOOOOOOOONGPath");
-  m_trees[unit.id] = &m_cachedTrees[std::to_string(unit.id)];
-  m_trees[unit.id]->actor = m_units[unit.id];
+  loadBTree(path, unit.id);
+  d.createDebugActor(unit.id, path);
+  m_trees[unit.id].actor = m_units[unit.id];
   m_teams[unit.team].emplace(unit.id);
 }
 
@@ -42,64 +43,42 @@ void AIManager::tick()
   if (d.tick()) {
     auto tree = m_trees[d.getCurrentActorId()];
     std::ostringstream oss;
-    std::unordered_map<std::string, std::string> stringBlackboard = tree->getStringBlackboard();
+    std::unordered_map<std::string, std::string> stringBlackboard = tree.getStringBlackboard();
     d.resetDebugBlackboard(stringBlackboard);
   }
   for (auto& [id, tree] : m_trees) {
-    d.updateDebugStatus(id, 0,0);
-    tree->tick();
+    d.updateNodeStatus(id, 0,0);
+    tree.tick();
   }
 }
 
 void AIManager::updateDebugger(UnitId unitId, const std::string& key)
 {
   if (d.getCurrentActorId() != unitId) return;
-  d.updateDebugBlackboard(unitId, m_trees[unitId]->getStringBlackboardKey(key));
+  d.updateDebugBlackboard(unitId, m_trees[unitId].getStringBlackboardKey(key));
 }
 
-BehaviourTree AIManager::loadBTree(const std::string& path)
+BehaviourTree& AIManager::loadBTree(const std::string& path, UnitId unitId)
 {
-  Adapter a;
+  if (!m_cachedTrees.contains(path)) {
+    //TODO: Consider changing this from a class to just a namespace with functions, as we dont track any state
+    Adapter a;
 
-  auto x = a.loadTree("C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\hunterTree.json");
+    
 
-  if (path == "1") {
     m_cachedTrees[path] = BehaviourTree();
+
+    auto x = a.loadTree(path, m_cachedTrees[path].debugPath);
 
     m_cachedTrees[path].m_root = makeNode(m_cachedTrees[path], x->name, x->nodeId);
 
     for (auto child : x->children) {
       addChildren(m_cachedTrees[path], m_cachedTrees[path].m_root, child);
     }
-
-
-    /*m_cachedTrees[path].m_root =
-        std::make_shared<SequenceNode>(&m_cachedTrees[path]);
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<AttackTargetNode>(&m_cachedTrees[path]));
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<ChaseNode>(&m_cachedTrees[path]));
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<MeleeAttackNode>(&m_cachedTrees[path]));
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<WaitStartNode>(&m_cachedTrees[path]));
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<WaitNode>(&m_cachedTrees[path]));*/
-    return m_cachedTrees[path];
-  } else {
-    m_cachedTrees[path] = BehaviourTree();
-    m_cachedTrees[path].m_root =
-        std::make_shared<SequenceNode>(&m_cachedTrees[path]);
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<WanderTargetNode>(&m_cachedTrees[path]));
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<MoveNode>(&m_cachedTrees[path]));
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<WaitStartNode>(&m_cachedTrees[path]));
-    m_cachedTrees[path].m_root->children.push_back(
-        std::make_shared<WaitNode>(&m_cachedTrees[path]));
-    return m_cachedTrees[path];
   }
+
+  m_trees.emplace(unitId, m_cachedTrees[path]);
+  return m_trees[unitId];
 }
 
 void AIManager::addChildren(BehaviourTree& tree, std::shared_ptr<BehaviourNode> parent, std::shared_ptr<TreeDesignNode> design) {

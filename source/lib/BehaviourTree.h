@@ -30,6 +30,7 @@ struct BehaviourNode
   BehaviourNode(const BehaviourNode& bn) = default;
   virtual ~BehaviourNode() = default;
   virtual Status evaluate() { return Status::Failure; };
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt);
 };
 
 
@@ -46,8 +47,17 @@ private:
 public:
   std::unordered_map<std::string, std::any> blackboard;
   std::weak_ptr<Unit> actor; //Potential issue, if we need to access Unit-subclass specific members
+  std::string debugPath;
+
+private:
+  //returns the root node of a copied tree
+  std::shared_ptr<BehaviourNode> copyTree(BehaviourTree& newTree, const std::shared_ptr<BehaviourNode> root) const;
 
 public:
+  BehaviourTree() = default;
+
+  BehaviourTree(const BehaviourTree& bt);
+
   void tick();
   void setCurrent(BehaviourNode* newCurrent);
   std::unordered_map<std::string, std::string> getStringBlackboard();

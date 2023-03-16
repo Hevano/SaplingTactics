@@ -9,6 +9,11 @@ struct SequenceNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
   virtual ~SequenceNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<SequenceNode>(SequenceNode(bt, nodeId));
+  }
   
   int currentChild = 0;
   Status evaluate() override
@@ -34,6 +39,11 @@ struct SelectorNode : BehaviourNode
   using BehaviourNode::BehaviourNode;
   virtual ~SelectorNode() override = default;
 
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<SelectorNode>(SelectorNode(bt, nodeId));
+  }
+
   int currentChild = 0;
   Status evaluate() override
   {
@@ -58,6 +68,11 @@ struct WanderTargetNode : BehaviourNode
   using BehaviourNode::BehaviourNode;
   virtual ~WanderTargetNode() override = default;
 
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<WanderTargetNode>(WanderTargetNode(bt, nodeId));
+  }
+
   Status evaluate() override
   {
     if (!tree->blackboard.contains("MoveTarget")
@@ -76,6 +91,12 @@ struct AttackTargetNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
   virtual ~AttackTargetNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<AttackTargetNode>(AttackTargetNode(bt, nodeId));
+  }
+
   float radius = 300.f;
   Status evaluate() override
   {
@@ -101,6 +122,12 @@ struct ChaseNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
   virtual ~ChaseNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<ChaseNode>(ChaseNode(bt, nodeId));
+  }
+
   float radius = 10.f;
   Status evaluate() override
   {
@@ -126,6 +153,12 @@ struct MeleeAttackNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
   virtual ~MeleeAttackNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<MeleeAttackNode>(MeleeAttackNode(bt, nodeId));
+  }
+
   float radius = 50.f;
   Status evaluate() override
   {
@@ -151,6 +184,11 @@ struct MoveNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
   virtual ~MoveNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<MoveNode>(MoveNode(bt, nodeId));
+  }
 
   Status evaluate() override
   {
@@ -182,6 +220,11 @@ struct WaitStartNode : BehaviourNode
   using BehaviourNode::BehaviourNode;
   virtual ~WaitStartNode() override = default;
 
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<WaitStartNode>(WaitStartNode(bt, nodeId));
+  }
+
   Status evaluate() override
   {
     tree->blackboard["WaitTimestamp"] = std::make_any<float>(GetTime());
@@ -195,6 +238,11 @@ struct WaitNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
   virtual ~WaitNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<WaitNode>(WaitNode(bt, nodeId));
+  }
 
   Status evaluate() override
   {
