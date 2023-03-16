@@ -64,8 +64,6 @@ BehaviourTree& AIManager::loadBTree(const std::string& path, UnitId unitId)
     //TODO: Consider changing this from a class to just a namespace with functions, as we dont track any state
     Adapter a;
 
-    
-
     m_cachedTrees[path] = BehaviourTree();
 
     auto x = a.loadTree(path, m_cachedTrees[path].debugPath);

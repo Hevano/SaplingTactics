@@ -68,14 +68,14 @@ private:
     //Max number of bytes our shared memory buffer can hold
     const int MAX_BYTES = 65536;
 
-    typedef ipc::allocator<std::pair<const unsigned int, ipc::basic_string<char>>, ipc::managed_shared_memory::segment_manager> actorid_allocator;
-    typedef ipc::flat_map<unsigned int, ipc::basic_string<char>, std::less<unsigned int>, actorid_allocator> actorid_map_type;
+    typedef ipc::allocator<char, ipc::managed_shared_memory::segment_manager> char_allocator;
+    typedef ipc::basic_string<char, std::char_traits<char>, char_allocator> char_string;
+
+    typedef ipc::allocator<std::pair<const unsigned int, char_string>, ipc::managed_shared_memory::segment_manager> actorid_allocator;
+    typedef ipc::flat_map<unsigned int, char_string, std::less<unsigned int>, actorid_allocator> actorid_map_type;
 
     typedef ipc::allocator<std::pair<const ipc::basic_string<char>, ipc::basic_string<char>>, ipc::managed_shared_memory::segment_manager> bb_allocator_type;
     typedef ipc::flat_map<ipc::basic_string<char>, ipc::basic_string<char>, std::less<ipc::basic_string<char>>, bb_allocator_type> bb_map_type;
-
-    //typedef ipc::allocator<std::pair<unsigned int, char_string_type>, ipc::managed_shared_memory::segment_manager> actorid_allocator_type;
-    //typedef ipc::flat_map<unsigned int, char_string_type, std::less<unsigned int>, actorid_allocator_type> actorid_map_type;
 
     ipc::managed_shared_memory m_segment;
     std::unique_ptr<bb_map_type> m_blackBoardMap;
@@ -98,7 +98,7 @@ public:
     m_segment = ipc::managed_shared_memory (ipc::create_only, "DebuggerSharedMemory", 65536);
     m_blackBoardMap.reset(m_segment.find_or_construct<bb_map_type>("BlackboardMap")(m_segment.get_segment_manager()));
     m_actorIdMap.reset(m_segment.find_or_construct<actorid_map_type>("ActorIdMap")(m_segment.get_segment_manager()));
-    
+ 
     return true;
   }
 
@@ -200,8 +200,8 @@ public:
   //declares that there is an actor who uses a tree at the path
   void createDebugActor(unsigned int actorId, std::string treePath) 
   {
-    m_actorIdMap->insert({ actorId, ipc::basic_string<char>(treePath.c_str()) });
-    auto x = m_actorIdMap->at(actorId);
+    m_actorIdMap->insert({ actorId, char_string(treePath.begin(), treePath.end(),char_allocator(m_segment.get_segment_manager())) });
+    auto x = m_segment.get_free_memory();
     std::cout << x << std::endl;
   };
 
