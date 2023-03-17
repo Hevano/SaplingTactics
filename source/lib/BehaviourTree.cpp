@@ -1,5 +1,6 @@
 #include "BehaviourTree.h"
 #include "Unit.h"
+#include "AIManager.h"
 
 #include "raylib-cpp.hpp"
 
@@ -93,6 +94,12 @@ BehaviourNode::BehaviourNode(BehaviourTree* tree, unsigned int id)
   , status(Status::Failure)
   , nodeId(id)
 {
+}
+
+Status BehaviourNode::setStatus(Status s)
+{
+  AIManager::getInstance().updateNodeDebugger(nodeId, tree->getActorId(), s);
+  return status = s;
 }
 
 std::shared_ptr<BehaviourNode> BehaviourNode::clone(BehaviourTree* bt)

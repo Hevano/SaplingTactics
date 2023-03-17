@@ -54,7 +54,8 @@ public:
 
   void tick();
 
-  void updateDebugger(UnitId unitId, const std::string& key);
+  void updateUnitDebugger(UnitId unitId, const std::string& key);
+  void updateNodeDebugger(unsigned int nodeId, UnitId unitId, Status status);
 
 private:
   BehaviourTree& loadBTree(const std::string& path, UnitId unitId);

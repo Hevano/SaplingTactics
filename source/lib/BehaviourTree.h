@@ -6,11 +6,11 @@
 #include <unordered_map>
 #include <any>
 
-enum class Status
+enum class Status : unsigned int
 {
-  Success,
-  Failure,
-  Running
+  Running = 0,
+  Failure = 1,
+  Success = 2
 };
 
 class BehaviourTree;
@@ -28,6 +28,7 @@ struct BehaviourNode
 
   BehaviourNode(BehaviourTree* tree, unsigned int id = 0);
   BehaviourNode(const BehaviourNode& bn) = default;
+  Status setStatus(Status s);
   virtual ~BehaviourNode() = default;
   virtual Status evaluate() { return Status::Failure; };
   virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt);

@@ -22,14 +22,14 @@ struct SequenceNode : BehaviourNode
       auto childStatus = children[i]->evaluate();
       currentChild = i;
       if (childStatus == Status::Running) {
-        return status = childStatus;
+        return setStatus(childStatus);
       } else if (childStatus == Status::Failure) {
         currentChild = 0; //Sequence failed, reset to start
-        return status = childStatus;
+        return setStatus(childStatus);
       }
     }
     currentChild = 0;  // Sequence succeeded, reset to start
-    return status = Status::Success;
+    return setStatus(Status::Success);
   }
 };
 
@@ -51,14 +51,14 @@ struct SelectorNode : BehaviourNode
       auto childStatus = children[i]->evaluate();
       currentChild = i;
       if (childStatus == Status::Running) {
-        return status = childStatus;
+        return setStatus(childStatus);
       } else if (childStatus == Status::Success) {
         currentChild = 0;  // Sequence succeeded, reset to start
-        return status = childStatus;
+        return setStatus(childStatus);
       }
     }
     currentChild = 0;  // Selection failed, reset to start
-    return status = Status::Failure;
+    return setStatus(Status::Failure);
   }
 };
 
@@ -80,9 +80,9 @@ struct WanderTargetNode : BehaviourNode
     {
       raylib::Vector2 v(GetRandomValue(0, 1280), GetRandomValue(0, 720));
       tree->blackboard["MoveTarget"] = std::make_any<raylib::Vector2>(v);
-      AIManager::getInstance().updateDebugger(tree->getActorId(), "MoveTarget");
+      AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "MoveTarget");
     }
-    return status = Status::Success;
+    return setStatus(Status::Success);
   }
 };
 
@@ -108,11 +108,11 @@ struct AttackTargetNode : BehaviourNode
       if (unit->active && actor.rect.GetPosition().Distance(unit->rect.GetPosition()) < radius)
       {
         tree->blackboard["AttackTarget"] = std::make_any<UnitId>(unit->id);
-        AIManager::getInstance().updateDebugger(tree->getActorId(), "AttackTarget");
-        return status = Status::Success;
+        AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "AttackTarget");
+        return setStatus(Status::Success);
       }
     }
-    return status = Status::Failure;
+    return setStatus(Status::Failure);
   }
 };
 
@@ -132,18 +132,18 @@ struct ChaseNode : BehaviourNode
   Status evaluate() override
   {
     if (!tree->blackboard.contains("AttackTarget")) {
-      return status = Status::Failure;
+      return setStatus(Status::Failure);
     }
 
     auto attackTargetId = std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
     raylib::Vector2 targetPos = AIManager::getInstance().getUnits()[attackTargetId]->rect.GetPosition();
     auto& actor = *(tree->actor.lock());
     if (actor.rect.GetPosition().Distance(targetPos) < radius) {
-      return status = Status::Success;
+      return setStatus(Status::Success);
     } else {
       actor.setMovement(targetPos);
       tree->setCurrent(this);
-      return status = Status::Running;
+      return setStatus(Status::Running);
     }
   }
 };
@@ -163,7 +163,7 @@ struct MeleeAttackNode : BehaviourNode
   Status evaluate() override
   {
     if (!tree->blackboard.contains("AttackTarget")) {
-      return status = Status::Failure;
+      return setStatus(Status::Failure);
     }
 
     auto attackTargetId = std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
@@ -171,11 +171,11 @@ struct MeleeAttackNode : BehaviourNode
     auto& actor = *(tree->actor.lock());
 
     if (actor.rect.GetPosition().Distance(targetUnit->rect.GetPosition()) > radius) {
-      return status = Status::Failure;
+      return setStatus(Status::Failure);
     } 
 
     actor.adjustTargetStat(Unit::Health, 1, *targetUnit);
-    return status = Status::Success;
+    return setStatus(Status::Success);
   }
 };
 
@@ -194,7 +194,7 @@ struct MoveNode : BehaviourNode
   {
     if (!tree->blackboard.contains("MoveTarget"))
     {
-      return status = Status::Failure;
+      return setStatus(Status::Failure);
     }
     
     auto moveTarget = std::any_cast<raylib::Vector2>(tree->blackboard["MoveTarget"]);
@@ -204,11 +204,11 @@ struct MoveNode : BehaviourNode
     {
       actor.clearMovement();
       tree->setCurrent(nullptr);
-      return status = Status::Success;
+      return setStatus(Status::Success);
     } else {
       actor.setMovement(moveTarget);
       tree->setCurrent(this);
-      return status = Status::Running;
+      return setStatus(Status::Running);
     }
   }
 };
@@ -228,8 +228,8 @@ struct WaitStartNode : BehaviourNode
   Status evaluate() override
   {
     tree->blackboard["WaitTimestamp"] = std::make_any<float>(GetTime());
-    AIManager::getInstance().updateDebugger(tree->getActorId(), "WaitTimestamp");
-    return status = Status::Success;
+    AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "WaitTimestamp");
+    return setStatus(Status::Success);
   }
 };
 
@@ -247,18 +247,18 @@ struct WaitNode : BehaviourNode
   Status evaluate() override
   {
     if (!tree->blackboard.contains("WaitTimestamp")) {
-      return status = Status::Success;
+      return setStatus(Status::Success);
     }
 
     auto startTime = std::any_cast<float>(tree->blackboard["WaitTimestamp"]);
     if (status != Status::Running) {
       tree->setCurrent(this);
-      return status = Status::Running;
+      return setStatus(Status::Running);
     } else if (startTime + 5 < GetTime()) {  // Wait for 5 seconds (hard coded)
       tree->blackboard.erase("WaitTimestamp");
-      AIManager::getInstance().updateDebugger(tree->getActorId(), "WaitTimestamp");
+      AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "WaitTimestamp");
       tree->setCurrent(nullptr);
-      return status = Status::Success;
+      return setStatus(Status::Success);
     }
   }
 };

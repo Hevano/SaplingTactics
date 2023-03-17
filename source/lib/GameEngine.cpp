@@ -21,9 +21,9 @@ GameEngine::GameEngine()
   u4.rect.x = GetRandomValue(0, 1280);
   u4.rect.y = GetRandomValue(0, 720);
   AIManager::getInstance().addUnit(u1);
-  AIManager::getInstance().addUnit(u2);
+  /*AIManager::getInstance().addUnit(u2);
   AIManager::getInstance().addUnit(u3);
-  AIManager::getInstance().addUnit(u4);
+  AIManager::getInstance().addUnit(u4);*/
 }
 
 void GameEngine::updateDrawFrame() {

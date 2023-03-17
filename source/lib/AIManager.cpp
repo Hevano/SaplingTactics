@@ -16,7 +16,7 @@ void AIManager::addUnit(Unit unit)
   std::string path = "C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\wanderDesignExport.json";
   m_units.emplace(unit.id, std::make_shared<Unit>(unit));
   loadBTree(path, unit.id);
-  d.createDebugActor(unit.id, path);
+  d.createDebugActor(unit.id, m_cachedTrees[path].debugPath);
   m_trees[unit.id].actor = m_units[unit.id];
   m_teams[unit.team].emplace(unit.id);
 }
@@ -47,15 +47,20 @@ void AIManager::tick()
     d.resetDebugBlackboard(stringBlackboard);
   }
   for (auto& [id, tree] : m_trees) {
-    d.updateNodeStatus(id, 0,0);
     tree.tick();
   }
 }
 
-void AIManager::updateDebugger(UnitId unitId, const std::string& key)
+void AIManager::updateUnitDebugger(UnitId unitId, const std::string& key)
 {
   if (d.getCurrentActorId() != unitId) return;
   d.updateDebugBlackboard(unitId, m_trees[unitId].getStringBlackboardKey(key));
+}
+
+void AIManager::updateNodeDebugger(unsigned int nodeId, UnitId unitId, Status status)
+{
+  unsigned int i = static_cast<unsigned int>(status);
+  d.updateNodeStatus(nodeId, unitId, i);
 }
 
 BehaviourTree& AIManager::loadBTree(const std::string& path, UnitId unitId)
