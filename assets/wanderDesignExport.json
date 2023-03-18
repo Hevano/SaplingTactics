@@ -1,0 +1,25 @@
+{
+    "debugPath": "C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\wanderDesign.json",
+    "root": {
+        "children": [
+            {
+                "id": 5,
+                "name": "WanderTargetNode"
+            },
+            {
+                "id": 7,
+                "name": "MoveNode"
+            },
+            {
+                "id": 9,
+                "name": "WaitStartNode"
+            },
+            {
+                "id": 11,
+                "name": "WaitNode"
+            }
+        ],
+        "id": 3,
+        "name": "SequenceNode"
+    }
+}

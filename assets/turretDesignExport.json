@@ -1,0 +1,25 @@
+{
+    "debugPath": "C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\Debug\\turretDesign.json",
+    "root": {
+        "children": [
+            {
+                "id": 5,
+                "name": "AttackTargetNode"
+            },
+            {
+                "id": 7,
+                "name": "RangedAttackNode"
+            },
+            {
+                "id": 9,
+                "name": "WaitStartNode"
+            },
+            {
+                "id": 10,
+                "name": "WaitNode"
+            }
+        ],
+        "id": 3,
+        "name": "SequenceNode"
+    }
+}

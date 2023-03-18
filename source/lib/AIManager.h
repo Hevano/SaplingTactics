@@ -31,26 +31,19 @@ private:
   std::unordered_map<UnitId, std::shared_ptr<Unit>> m_units;
   //Handy lookups
   std::unordered_map<UnitId, BehaviourTree> m_trees;
-  std::unordered_map<Unit::TeamEnum, std::unordered_set<UnitId>> m_teams;
+  std::unordered_map<Unit::Team, std::unordered_set<UnitId>> m_teams;
 
   //Loads trees from disk once and caches here
   std::unordered_map<std::string, BehaviourTree> m_cachedTrees;
 
 public:
-  void addUnit(Unit unit);
-
-  //Template alternative
-  /*template <typename UnitType, typename... Ts>
-  void addUnit(Unit::TeamEnum team, Ts... args)
-  {
-    m_units.push_back(UnitType(UnitType::texturePath, &args...));
-    m_trees[m_units.back().id] = std::move(loadBTree(UnitType::treePath));
-  }*/
+  Unit& addUnit(UnitId id, Unit::Team team, const std::string& treePath);
 
   void removeUnit(Unit& unit);
 
   std::unordered_map<UnitId, std::shared_ptr<Unit>>& getUnits();
-  const std::unordered_set<UnitId>& getTeamIds(Unit::TeamEnum team) const;
+  const std::unordered_set<UnitId>& getTeamIds(Unit::Team team) const;
+  const std::unordered_map<std::string, std::any>& getUnitBlackboard(UnitId id);
 
   void tick();
 

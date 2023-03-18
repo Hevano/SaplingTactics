@@ -111,9 +111,8 @@ public:
     ipc::message_queue::size_type recv_size;
     unsigned int priority;
     unsigned int id = 0;
-
-    ipc::message_queue mq(ipc::open_or_create, "ActorSelectMessageQueue", 100, sizeof(unsigned int));
     try {
+      ipc::message_queue mq(ipc::open_or_create, "ActorSelectMessageQueue", 100, sizeof(unsigned int));
       if (mq.get_num_msg() > 0) {
         mq.receive(&id, sizeof(id), recv_size, priority);
         if (recv_size == sizeof(id)) {
@@ -122,8 +121,8 @@ public:
         }
       }
     }
-    catch (ipc::interprocess_exception& ex) {
-      //throws error if queue is empty
+    catch (std::exception& ex) {
+      std::cout << "Error: " << ex.what() << std::endl;
     }
     return false;
   }

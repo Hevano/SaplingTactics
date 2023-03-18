@@ -1,17 +1,5 @@
 #include "Unit.h"
 
-Unit::Unit(const std::string& texturePath) 
-  : texture(texturePath)
-  , rect(0,0,100, 100)
-  , team(Unit::TeamEnum::Player)
-  , id(idCount_++) //increment id with each new unit created
-{
-  stats[Stat::Speed] = 100;
-  stats[Stat::Health] = 1;
-  stats[Stat::Damage] = 1;
-  stats[Stat::Morale] = 1;
-}
-
 const raylib::Vector2& Unit::getMovement() const
 {
   return movement;
@@ -36,15 +24,32 @@ void Unit::move() {
   if (!active) return;
   Vector2 move = Vector2MoveTowards(rect.GetPosition(), movement, stats[Stat::Speed] * GetFrameTime());
   rect.SetPosition(move);
+  for (auto& [type, action] : actions) {
+    if (action.status == Status::Running) {
+      action.tick(*this);
+    }
+  }
 }
 
 void Unit::draw() {
-  texture.Draw(
-    raylib::Rectangle(0,0, texture.width, texture.height), //source rectangle, full texture size
+  texture->Draw(
+    raylib::Rectangle(0,0, texture->width, texture->height), //source rectangle, full texture size
     rect, //destination rectangle, texture rect
     raylib::Vector2(),
     0
   );
+}
+
+Status Unit::takeAction(UnitAction::ActionType type)
+{
+  if (!actions[type].active) {
+    actions[type].tick(*this);
+    actions[type].active = true;
+  }
+  else if (actions[type].status != Status::Running) {
+    actions[type].active = false;
+  }
+  return actions[type].status;
 }
 
 void Unit::adjustStat(Stat stat, int amount, Unit* source) {

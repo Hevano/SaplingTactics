@@ -10,15 +10,15 @@ AIManager& AIManager::getInstance()
   return *instance_;
 }
 
-//TODO: Replace with a factory class
-void AIManager::addUnit(Unit unit)
+Unit& AIManager::addUnit(UnitId id, Unit::Team team, const std::string& treePath)
 {
-  std::string path = "C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\wanderDesignExport.json";
-  m_units.emplace(unit.id, std::make_shared<Unit>(unit));
-  loadBTree(path, unit.id);
-  d.createDebugActor(unit.id, m_cachedTrees[path].debugPath);
-  m_trees[unit.id].actor = m_units[unit.id];
-  m_teams[unit.team].emplace(unit.id);
+  m_units.emplace(id, std::make_shared<Unit>());
+  loadBTree(treePath, id);
+  d.createDebugActor(id, m_cachedTrees[treePath].debugPath);
+  m_trees[id].actor = m_units[id];
+  m_teams[team].emplace(id);
+
+  return *m_units[id];
 }
 
 void AIManager::removeUnit(Unit& unit) {
@@ -32,20 +32,32 @@ std::unordered_map<UnitId, std::shared_ptr<Unit>>& AIManager::getUnits()
   return m_units;
 }
 
-const std::unordered_set<UnitId>& AIManager::getTeamIds(Unit::TeamEnum team) const
+const std::unordered_set<UnitId>& AIManager::getTeamIds(Unit::Team team) const
 {
   return m_teams.at(team);
+}
+
+const std::unordered_map<std::string, std::any>& AIManager::getUnitBlackboard(UnitId id)
+{
+  return m_trees[id].blackboard;
 }
 
 void AIManager::tick()
 {
   //If a new thing is selected, we have to change out the blackboard (could require some synchronization)
-  if (d.tick()) {
-    auto tree = m_trees[d.getCurrentActorId()];
-    std::ostringstream oss;
-    std::unordered_map<std::string, std::string> stringBlackboard = tree.getStringBlackboard();
-    d.resetDebugBlackboard(stringBlackboard);
+
+  try {
+    if (d.tick()) {
+      auto tree = m_trees[d.getCurrentActorId()];
+      std::ostringstream oss;
+      std::unordered_map<std::string, std::string> stringBlackboard = tree.getStringBlackboard();
+      d.resetDebugBlackboard(stringBlackboard);
+    }
   }
+  catch (ipc::interprocess_exception& ex) {
+    std::cout << "Error: " << ex.what() << std::endl;
+  }
+  
   for (auto& [id, tree] : m_trees) {
     tree.tick();
   }
@@ -102,6 +114,7 @@ std::shared_ptr<BehaviourNode> AIManager::makeNode(BehaviourTree& tree, const st
     constructors.emplace("AttackTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<AttackTargetNode>(&t, i); });
     constructors.emplace("ChaseNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<ChaseNode>(&t, i); });
     constructors.emplace("MeleeAttackNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<MeleeAttackNode>(&t, i); });
+    constructors.emplace("RangedAttackNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<RangedAttackNode>(&t, i); });
     constructors.emplace("MoveNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<MoveNode>(&t, i); });
     constructors.emplace("WaitStartNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WaitStartNode>(&t, i); });
     constructors.emplace("WaitNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WaitNode>(&t, i); });

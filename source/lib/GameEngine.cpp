@@ -7,23 +7,18 @@ GameEngine::GameEngine()
   , m_screenWidth(1280)
 {
   SetTargetFPS(60);
-  Unit u1(Unit::texturePath);
+  auto& u1 = m_unitFactory.makeUnit(UnitFactory::UnitType::Ranged, Unit::Team::Computer);
   u1.rect.x = GetRandomValue(0, 1280);
   u1.rect.y = GetRandomValue(0, 720);
-  Unit u2(Unit::texturePath);
+  auto& u2 = m_unitFactory.makeUnit(UnitFactory::UnitType::Melee, Unit::Team::Player);
   u2.rect.x = GetRandomValue(0, 1280);
   u2.rect.y = GetRandomValue(0, 720);
-  u2.team = Unit::Computer;
-  Unit u3(Unit::texturePath);
+  auto& u3 = m_unitFactory.makeUnit(UnitFactory::UnitType::Melee, Unit::Team::Player);
   u3.rect.x = GetRandomValue(0, 1280);
   u3.rect.y = GetRandomValue(0, 720);
-  Unit u4(Unit::texturePath);
+  auto& u4 = m_unitFactory.makeUnit(UnitFactory::UnitType::Melee, Unit::Team::Player);
   u4.rect.x = GetRandomValue(0, 1280);
   u4.rect.y = GetRandomValue(0, 720);
-  AIManager::getInstance().addUnit(u1);
-  /*AIManager::getInstance().addUnit(u2);
-  AIManager::getInstance().addUnit(u3);
-  AIManager::getInstance().addUnit(u4);*/
 }
 
 void GameEngine::updateDrawFrame() {

@@ -97,11 +97,11 @@ struct AttackTargetNode : BehaviourNode
     return std::make_shared<AttackTargetNode>(AttackTargetNode(bt, nodeId));
   }
 
-  float radius = 300.f;
+  float radius = 3000.f;
   Status evaluate() override
   {
     auto& actor = *(tree->actor.lock());
-    auto enemyTeam = (actor.team == Unit::Player) ? Unit::Computer : Unit::Player;
+    auto enemyTeam = (actor.team == Unit::Team::Player) ? Unit::Team::Computer : Unit::Team::Player;
     auto units = AIManager::getInstance().getUnits();
     for (auto& id : AIManager::getInstance().getTeamIds(enemyTeam)) {
       auto& unit = units[id];
@@ -165,17 +165,31 @@ struct MeleeAttackNode : BehaviourNode
     if (!tree->blackboard.contains("AttackTarget")) {
       return setStatus(Status::Failure);
     }
+    auto& actor = *(tree->actor.lock());
+    return setStatus(actor.takeAction(UnitAction::MeleeAttack));
+  }
+};
 
-    auto attackTargetId = std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
-    auto targetUnit = AIManager::getInstance().getUnits()[attackTargetId];
+//[ArborMaster]RangedAttackNode|0|AttackTarget|
+struct RangedAttackNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~RangedAttackNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<RangedAttackNode>(RangedAttackNode(bt, nodeId));
+  }
+
+  float radius = 50.f;
+  Status evaluate() override
+  {
+    if (!tree->blackboard.contains("AttackTarget")) {
+      return setStatus(Status::Failure);
+    }
     auto& actor = *(tree->actor.lock());
 
-    if (actor.rect.GetPosition().Distance(targetUnit->rect.GetPosition()) > radius) {
-      return setStatus(Status::Failure);
-    } 
-
-    actor.adjustTargetStat(Unit::Health, 1, *targetUnit);
-    return setStatus(Status::Success);
+    return setStatus(actor.takeAction(UnitAction::RangedAttack));
   }
 };
 

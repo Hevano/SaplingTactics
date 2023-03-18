@@ -1,6 +1,5 @@
 #pragma once
-#include "Unit.h"
-#include "AIManager.h"
+#include "UnitFactory.h"
 
 #include "raylib-cpp.hpp"
 
@@ -11,6 +10,7 @@ class GameEngine
 private:
   raylib::Window m_window;
   int m_screenWidth, m_screenHeight;
+  UnitFactory m_unitFactory;
 
 
 public:
