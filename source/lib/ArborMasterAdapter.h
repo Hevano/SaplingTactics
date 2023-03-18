@@ -80,6 +80,8 @@ private:
     ipc::managed_shared_memory m_segment;
     std::unique_ptr<bb_map_type> m_blackBoardMap;
     std::unique_ptr<actorid_map_type> m_actorIdMap;
+    std::unique_ptr <ipc::message_queue> m_actorIdMessageQueue;
+    std::unique_ptr <ipc::message_queue> m_nodeUpdateMessageQueue;
 
     std::unique_ptr <char_allocator> m_charAllocator;
 
@@ -102,6 +104,9 @@ public:
     m_actorIdMap.reset(m_segment.find_or_construct<actorid_map_type>("ActorIdMap")(m_segment.get_segment_manager()));
 
     m_charAllocator = std::make_unique<char_allocator>(char_allocator(m_segment.get_segment_manager()));
+    m_actorIdMessageQueue.reset(new ipc::message_queue(ipc::open_or_create, "ActorSelectMessageQueue", 100, sizeof(unsigned int)));
+    m_nodeUpdateMessageQueue.reset(new ipc::message_queue(ipc::open_or_create, "NodeUpdateMessageQueue", 100, sizeof(ActorUpdate)));
+    
  
     return true;
   }
@@ -112,9 +117,8 @@ public:
     unsigned int priority;
     unsigned int id = 0;
     try {
-      ipc::message_queue mq(ipc::open_or_create, "ActorSelectMessageQueue", 100, sizeof(unsigned int));
-      if (mq.get_num_msg() > 0) {
-        mq.receive(&id, sizeof(id), recv_size, priority);
+      if (m_actorIdMessageQueue->get_num_msg() > 0) {
+        m_actorIdMessageQueue->receive(&id, sizeof(id), recv_size, priority);
         if (recv_size == sizeof(id)) {
           m_currentActorId = id;
           return true;
@@ -153,14 +157,11 @@ public:
   {
     //Only update the message queue if we are currently watching that actor
     if (actorId != m_currentActorId) return;
-    ipc::message_queue  msgQueue(ipc::open_or_create, "NodeUpdateMessageQueue",
-      100,
-      sizeof(ActorUpdate)
-    );
+    
     ActorUpdate update(nodeId, actorId, status);
     try {
-      if (msgQueue.get_num_msg() < msgQueue.get_max_msg()) {
-        msgQueue.send(&update, sizeof(ActorUpdate), 0);
+      if (m_nodeUpdateMessageQueue->get_num_msg() < m_nodeUpdateMessageQueue->get_max_msg()) {
+        m_nodeUpdateMessageQueue->send(&update, sizeof(ActorUpdate), 0);
       }
     }
     catch (ipc::interprocess_exception& ex) {
