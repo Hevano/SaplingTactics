@@ -19,12 +19,12 @@ static inline UnitId idCount = 0;
 
 const inline static std::vector<std::string> unitTexturePaths = {
   "./assets/cloak.png",
-  "./assets/cloak.png",
+  "./assets/cloak2.png",
 };
 
 const inline static std::vector<std::string> unitTreePaths = {
   "./assets/wanderDesignExport.json",
-  "./assets/turretDesignExport.json",
+  "./assets/wizardDesignExport.json",
 };
 
 const inline static std::vector<std::unordered_map<Unit::Stat, int>> unitStats = {

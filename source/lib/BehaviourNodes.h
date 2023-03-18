@@ -62,6 +62,31 @@ struct SelectorNode : BehaviourNode
   }
 };
 
+//[ArborMaster]InverterNode|1|
+struct InverterNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~InverterNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<InverterNode>(InverterNode(bt, nodeId));
+  }
+
+  Status evaluate() override
+  {
+    auto childStatus = children[0]->evaluate();
+    switch (childStatus) {
+    case Status::Failure:
+      return setStatus(Status::Success);
+    case Status::Success:
+      return setStatus(Status::Failure);
+    default:
+      return setStatus(Status::Running);
+    }
+  }
+};
+
 //[ArborMaster]WanderTargetNode|0|MoveTarget|
 struct WanderTargetNode : BehaviourNode
 {
@@ -274,6 +299,64 @@ struct WaitNode : BehaviourNode
       tree->setCurrent(nullptr);
       return setStatus(Status::Success);
     }
+  }
+};
+
+//[ArborMaster]EnemyProximityNode|0|ProximityTarget|
+struct EnemyProximityNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~EnemyProximityNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<EnemyProximityNode>(EnemyProximityNode(bt, nodeId));
+  }
+
+  Status evaluate() override
+  {
+    auto& actor = *(tree->actor.lock());
+    auto enemyTeam = (actor.team == Unit::Team::Player) ? Unit::Team::Computer : Unit::Team::Player;
+    auto& units = AIManager::getInstance().getUnits();
+    for (auto& id : AIManager::getInstance().getTeamIds(enemyTeam)) {
+      auto& unit = units[id];
+      if (unit->active && actor.getPos().Distance(unit->getPos()) < unit->stats[Unit::Stat::Speed] * 2)
+      {
+        tree->blackboard["ProximityTarget"] = std::make_any<UnitId>(unit->id);
+        AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "ProximityTarget");
+        return setStatus(Status::Success);
+      }
+    }
+    return setStatus(Status::Failure);
+  }
+};
+
+//[ArborMaster]FleeTargetNode|0|MoveTarget|ProximityTarget
+struct FleeTargetNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~FleeTargetNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<FleeTargetNode>(FleeTargetNode(bt, nodeId));
+  }
+
+  Status evaluate() override
+  {
+    if (!tree->blackboard.contains("ProximityTarget")) {
+      return setStatus(Status::Failure);
+    }
+   
+    auto fleeTargetId = std::any_cast<UnitId>(tree->blackboard["ProximityTarget"]);
+
+    auto threatPos = AIManager::getInstance().getUnits()[fleeTargetId]->getPos();
+    auto& actor = *(tree->actor.lock());
+
+    raylib::Vector2 v = actor.getPos() + (actor.getPos() - threatPos).Normalize() * actor.stats[Unit::Stat::Speed];
+    tree->blackboard["MoveTarget"] = std::make_any<raylib::Vector2>(v);
+    AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "MoveTarget");
+    return setStatus(Status::Success);
   }
 };
 

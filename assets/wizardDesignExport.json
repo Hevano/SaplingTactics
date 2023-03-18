@@ -1,0 +1,49 @@
+{
+    "debugPath": "C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\wizardDesign.json",
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "id": 5,
+                        "name": "EnemyProximityNode"
+                    },
+                    {
+                        "id": 10,
+                        "name": "FleeTargetNode"
+                    },
+                    {
+                        "id": 12,
+                        "name": "MoveNode"
+                    }
+                ],
+                "id": 6,
+                "name": "SequenceNode"
+            },
+            {
+                "children": [
+                    {
+                        "id": 17,
+                        "name": "AttackTargetNode"
+                    },
+                    {
+                        "id": 15,
+                        "name": "WaitStartNode"
+                    },
+                    {
+                        "id": 20,
+                        "name": "WaitNode"
+                    },
+                    {
+                        "id": 19,
+                        "name": "RangedAttackNode"
+                    }
+                ],
+                "id": 9,
+                "name": "SequenceNode"
+            }
+        ],
+        "id": 3,
+        "name": "SelectorNode"
+    }
+}

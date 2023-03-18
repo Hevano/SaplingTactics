@@ -118,6 +118,8 @@ std::shared_ptr<BehaviourNode> AIManager::makeNode(BehaviourTree& tree, const st
     constructors.emplace("MoveNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<MoveNode>(&t, i); });
     constructors.emplace("WaitStartNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WaitStartNode>(&t, i); });
     constructors.emplace("WaitNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WaitNode>(&t, i); });
+    constructors.emplace("EnemyProximityNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<EnemyProximityNode>(&t, i); });
+    constructors.emplace("FleeTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<FleeTargetNode>(&t, i); });
   }
   
 
