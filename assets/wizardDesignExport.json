@@ -5,41 +5,59 @@
             {
                 "children": [
                     {
-                        "id": 5,
+                        "id": 4,
                         "name": "EnemyProximityNode"
                     },
                     {
-                        "id": 10,
+                        "id": 7,
                         "name": "FleeTargetNode"
                     },
                     {
-                        "id": 12,
+                        "id": 9,
                         "name": "MoveNode"
                     }
                 ],
-                "id": 6,
+                "id": 11,
                 "name": "SequenceNode"
             },
             {
                 "children": [
                     {
-                        "id": 17,
-                        "name": "AttackTargetNode"
-                    },
-                    {
-                        "id": 15,
-                        "name": "WaitStartNode"
+                        "id": 18,
+                        "name": "TargetInRangeNode"
                     },
                     {
                         "id": 20,
-                        "name": "WaitNode"
+                        "name": "RangedAttackNode"
                     },
                     {
-                        "id": 19,
-                        "name": "RangedAttackNode"
+                        "id": 24,
+                        "name": "WaitStartNode"
+                    },
+                    {
+                        "id": 23,
+                        "name": "WaitNode"
                     }
                 ],
-                "id": 9,
+                "id": 16,
+                "name": "SequenceNode"
+            },
+            {
+                "children": [
+                    {
+                        "id": 29,
+                        "name": "NearestTargetNode"
+                    },
+                    {
+                        "id": 33,
+                        "name": "ApproachTargetNode"
+                    },
+                    {
+                        "id": 35,
+                        "name": "MoveNode"
+                    }
+                ],
+                "id": 27,
                 "name": "SequenceNode"
             }
         ],

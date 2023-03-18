@@ -4,6 +4,8 @@
 #include "Unit.h"
 #include "AIManager.h"
 
+#include <queue>
+
 //[ArborMaster]SequenceNode|99|
 struct SequenceNode : BehaviourNode
 {
@@ -111,18 +113,18 @@ struct WanderTargetNode : BehaviourNode
   }
 };
 
-//[ArborMaster]AttackTargetNode|0|AttackTarget|
-struct AttackTargetNode : BehaviourNode
+//[ArborMaster]TargetInRangeNode|0|AttackTarget|
+struct TargetInRangeNode : BehaviourNode
 {
   using BehaviourNode::BehaviourNode;
-  virtual ~AttackTargetNode() override = default;
+  virtual ~TargetInRangeNode() override = default;
 
   virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
   {
-    return std::make_shared<AttackTargetNode>(AttackTargetNode(bt, nodeId));
+    return std::make_shared<TargetInRangeNode>(TargetInRangeNode(bt, nodeId));
   }
 
-  float radius = 3000.f;
+  float radius = 500.f;
   Status evaluate() override
   {
     auto& actor = *(tree->actor.lock());
@@ -138,6 +140,46 @@ struct AttackTargetNode : BehaviourNode
       }
     }
     return setStatus(Status::Failure);
+  }
+};
+
+//[ArborMaster]NearestTargetNode|0|AttackTarget|
+struct NearestTargetNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~NearestTargetNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<NearestTargetNode>(NearestTargetNode(bt, nodeId));
+  }
+
+  float radius = 500.f;
+  Status evaluate() override
+  {
+    auto& actor = *(tree->actor.lock());
+    auto enemyTeam = (actor.team == Unit::Team::Player) ? Unit::Team::Computer : Unit::Team::Player;
+    auto units = AIManager::getInstance().getUnits();
+    auto distanceComparison = [&actor](const Unit* lhs, const Unit* rhs)
+    {
+      return actor.getPos().Distance(lhs->getPos()) > actor.getPos().Distance(rhs->getPos());
+    };
+    std::priority_queue<Unit*, std::vector<Unit*>, std::function<bool(const Unit*, const Unit*)>> targets(distanceComparison);
+    for (auto& id : AIManager::getInstance().getTeamIds(enemyTeam)) {
+      auto& unit = units[id];
+      if (unit->active)
+      {
+        targets.push(unit.get());
+      }
+    }
+
+    if (targets.empty()) {
+      return setStatus(Status::Failure);
+    }
+
+    tree->blackboard["AttackTarget"] = std::make_any<UnitId>(targets.top()->id);
+    AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "AttackTarget");
+    return setStatus(Status::Success);
   }
 };
 
@@ -170,6 +212,37 @@ struct ChaseNode : BehaviourNode
       tree->setCurrent(this);
       return setStatus(Status::Running);
     }
+  }
+};
+
+//[ArborMaster]ApproachTargetNode|0|AttackTarget|
+struct ApproachTargetNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~ApproachTargetNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<ApproachTargetNode>(ApproachTargetNode(bt, nodeId));
+  }
+
+  float radius = 10.f;
+  Status evaluate() override
+  {
+    if (!tree->blackboard.contains("AttackTarget")) {
+      return setStatus(Status::Failure);
+    }
+
+    auto& actor = *(tree->actor.lock());
+    auto attackTargetId = std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
+    raylib::Vector2 targetPos = AIManager::getInstance().getUnits()[attackTargetId]->rect.GetPosition();
+
+    auto midpoint = (targetPos - actor.getPos()) * 0.5f;
+    tree->blackboard["MoveTarget"] = std::make_any<raylib::Vector2>(midpoint);
+    AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "MoveTarget");
+
+
+    return setStatus(Status::Success);
   }
 };
 

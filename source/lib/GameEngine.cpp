@@ -8,8 +8,8 @@ GameEngine::GameEngine()
 {
   SetTargetFPS(60);
   auto& u1 = m_unitFactory.makeUnit(UnitFactory::UnitType::Ranged, Unit::Team::Computer);
-  u1.rect.x = 1280 / 2; //GetRandomValue(0, 1280);
-  u1.rect.y = 720 / 2; //GetRandomValue(0, 720);
+  u1.rect.x = 0; //GetRandomValue(0, 1280);
+  u1.rect.y = 0; //GetRandomValue(0, 720);
   u1.setMovement(u1.getPos());
   auto& u2 = m_unitFactory.makeUnit(UnitFactory::UnitType::Melee, Unit::Team::Player);
   u2.rect.x = GetRandomValue(0, 1280);

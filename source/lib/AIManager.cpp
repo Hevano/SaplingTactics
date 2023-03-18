@@ -109,9 +109,10 @@ std::shared_ptr<BehaviourNode> AIManager::makeNode(BehaviourTree& tree, const st
 
   if (constructors.size() == 0) {
     constructors.emplace("SequenceNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<SequenceNode>(&t, i); });
+    constructors.emplace("InverterNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<InverterNode>(&t, i); });
     constructors.emplace("SelectorNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<SelectorNode>(&t, i); });
     constructors.emplace("WanderTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WanderTargetNode>(&t, i); });
-    constructors.emplace("AttackTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<AttackTargetNode>(&t, i); });
+    constructors.emplace("TargetInRangeNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<TargetInRangeNode>(&t, i); });
     constructors.emplace("ChaseNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<ChaseNode>(&t, i); });
     constructors.emplace("MeleeAttackNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<MeleeAttackNode>(&t, i); });
     constructors.emplace("RangedAttackNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<RangedAttackNode>(&t, i); });
@@ -120,6 +121,8 @@ std::shared_ptr<BehaviourNode> AIManager::makeNode(BehaviourTree& tree, const st
     constructors.emplace("WaitNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<WaitNode>(&t, i); });
     constructors.emplace("EnemyProximityNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<EnemyProximityNode>(&t, i); });
     constructors.emplace("FleeTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<FleeTargetNode>(&t, i); });
+    constructors.emplace("NearestTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<NearestTargetNode>(&t, i); });
+    constructors.emplace("ApproachTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<ApproachTargetNode>(&t, i); });
   }
   
 
