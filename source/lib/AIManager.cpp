@@ -16,6 +16,7 @@ Unit& AIManager::addUnit(UnitId id, Unit::Team team, const std::string& treePath
   loadBTree(treePath, id);
   d.createDebugActor(id, m_cachedTrees[treePath].debugPath);
   m_trees[id].actor = m_units[id];
+  m_unitTreePaths[id] = treePath;
   m_teams[team].emplace(id);
 
   return *m_units[id];
@@ -25,6 +26,7 @@ void AIManager::removeUnit(Unit& unit) {
   m_trees.erase(unit.id);
   m_teams[unit.team].erase(unit.id);
   m_units.erase(unit.id);
+  m_unitTreePaths.erase(unit.id);
 }
 
 std::unordered_map<UnitId, std::shared_ptr<Unit>>& AIManager::getUnits()
@@ -61,6 +63,23 @@ void AIManager::tick()
   for (auto& [id, tree] : m_trees) {
     tree.tick();
   }
+}
+
+void AIManager::reset()
+{
+   for (auto& [id, tree] : m_trees) {
+    tree.blackboard.clear();
+    tree.m_current = nullptr;
+    const auto& path = m_unitTreePaths[id];
+    tree.m_root = m_cachedTrees[path].copyTree(tree, m_cachedTrees[path].m_root);
+  }
+
+  for (auto& [id, unit] : m_units) {
+    unit->reset();
+  }
+
+  //Empties debugger blackboard
+  d.resetDebugBlackboard({});
 }
 
 void AIManager::updateUnitDebugger(UnitId unitId, const std::string& key)
@@ -123,6 +142,7 @@ std::shared_ptr<BehaviourNode> AIManager::makeNode(BehaviourTree& tree, const st
     constructors.emplace("FleeTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<FleeTargetNode>(&t, i); });
     constructors.emplace("NearestTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<NearestTargetNode>(&t, i); });
     constructors.emplace("ApproachTargetNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<ApproachTargetNode>(&t, i); });
+    constructors.emplace("IsTargetStrongerNode", [](BehaviourTree& t, unsigned int i) { return std::make_shared<IsTargetStrongerNode>(&t, i); });
   }
   
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "UnitAction.h"
 
+#include "raylib.hpp"
 #include "Vector2.hpp"
 #include "Texture.hpp"
 #include "Rectangle.hpp"
@@ -31,6 +32,7 @@ public:
 
   std::shared_ptr<raylib::Texture> texture;
   raylib::Rectangle rect = { 0,0,100,100 };
+
   UnitId id = 0;
   Team team = Team::Player;
 
@@ -65,4 +67,6 @@ public:
 
   //Adjusts the stat of another unit
   void adjustTargetStat(Stat stat, int amount, Unit& target);
+
+  void reset();
 };

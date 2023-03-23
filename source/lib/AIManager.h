@@ -32,6 +32,7 @@ private:
   //Handy lookups
   std::unordered_map<UnitId, BehaviourTree> m_trees;
   std::unordered_map<Unit::Team, std::unordered_set<UnitId>> m_teams;
+  std::unordered_map<UnitId, std::string> m_unitTreePaths;
 
   //Loads trees from disk once and caches here
   std::unordered_map<std::string, BehaviourTree> m_cachedTrees;
@@ -46,6 +47,8 @@ public:
   const std::unordered_map<std::string, std::any>& getUnitBlackboard(UnitId id);
 
   void tick();
+
+  void reset();
 
   void updateUnitDebugger(UnitId unitId, const std::string& key);
   void updateNodeDebugger(unsigned int nodeId, UnitId unitId, Status status);

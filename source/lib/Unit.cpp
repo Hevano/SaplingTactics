@@ -1,5 +1,7 @@
 #include "Unit.h"
 
+#include <format>
+
 const raylib::Vector2& Unit::getMovement() const
 {
   return movement;
@@ -38,6 +40,9 @@ void Unit::draw() {
     raylib::Vector2(),
     0
   );
+
+  Color c = active ? raylib::Color::Green() : raylib::Color::Red();
+  DrawText(std::format("{}/{}", stats[Stat::Health], statsMax[Stat::Health]).c_str(), rect.x, rect.y, 12, c);
 }
 
 Status Unit::takeAction(UnitAction::ActionType type)
@@ -64,4 +69,14 @@ void Unit::adjustTargetStat(Stat stat, int amount, Unit& target) {
   if (!active) return;
   TraceLog(LOG_DEBUG, "Adusted Stat");
   target.adjustStat(stat, amount, this);
+}
+
+void Unit::reset()
+{
+  for (auto& [stat, value] : stats) {
+    value = statsMax[stat];
+  }
+
+  active = true;
+  clearMovement();
 }

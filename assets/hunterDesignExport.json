@@ -1,0 +1,81 @@
+{
+    "debugPath": "C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\hunterDesign.json",
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "id": 5,
+                        "name": "EnemyProximityNode"
+                    },
+                    {
+                        "id": 7,
+                        "name": "IsTargetStrongerNode"
+                    },
+                    {
+                        "id": 12,
+                        "name": "FleeTargetNode"
+                    },
+                    {
+                        "id": 14,
+                        "name": "MoveNode"
+                    }
+                ],
+                "id": 8,
+                "name": "SequenceNode"
+            },
+            {
+                "children": [
+                    {
+                        "id": 18,
+                        "name": "NearestTargetNode"
+                    },
+                    {
+                        "children": [
+                            {
+                                "id": 20,
+                                "name": "IsTargetStrongerNode"
+                            }
+                        ],
+                        "id": 21,
+                        "name": "InverterNode"
+                    },
+                    {
+                        "id": 24,
+                        "name": "ChaseNode"
+                    },
+                    {
+                        "id": 26,
+                        "name": "MeleeAttackNode"
+                    }
+                ],
+                "id": 16,
+                "name": "SequenceNode"
+            },
+            {
+                "children": [
+                    {
+                        "id": 30,
+                        "name": "TargetInRangeNode"
+                    },
+                    {
+                        "id": 32,
+                        "name": "RangedAttackNode"
+                    },
+                    {
+                        "id": 34,
+                        "name": "WanderTargetNode"
+                    },
+                    {
+                        "id": 36,
+                        "name": "MoveNode"
+                    }
+                ],
+                "id": 28,
+                "name": "SequenceNode"
+            }
+        ],
+        "id": 3,
+        "name": "SelectorNode"
+    }
+}

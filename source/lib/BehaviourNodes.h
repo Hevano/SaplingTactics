@@ -433,4 +433,43 @@ struct FleeTargetNode : BehaviourNode
   }
 };
 
+//[ArborMaster]IsTargetStrongerNode|0|ProximityTarget|
+struct IsTargetStrongerNode : BehaviourNode
+{
+  using BehaviourNode::BehaviourNode;
+  virtual ~IsTargetStrongerNode() override = default;
+
+  virtual std::shared_ptr<BehaviourNode> clone(BehaviourTree* bt) override
+  {
+    return std::make_shared<IsTargetStrongerNode>(IsTargetStrongerNode(bt, nodeId));
+  }
+
+  Status evaluate() override
+  {
+    
+    std::string targetName = "";
+    if (tree->blackboard.contains("AttackTarget")) {
+      targetName = "AttackTarget";
+    }
+    else if (tree->blackboard.contains("ProximityTarget")) {
+      targetName = "ProximityTarget";
+    }
+
+    if (targetName.empty()) {
+      return setStatus(Status::Failure);
+    }
+
+    auto& actor = *(tree->actor.lock());
+    auto targetId = std::any_cast<UnitId>(tree->blackboard[targetName]);
+    auto& target = AIManager::getInstance().getUnits()[targetId];
+    if (target->stats[Unit::Stat::Damage] + target->stats[Unit::Stat::Health] > actor.stats[Unit::Stat::Damage] + actor.stats[Unit::Stat::Health]) {
+      return setStatus(Status::Success);
+    }
+    else {
+      return setStatus(Status::Failure);
+    }
+    
+  }
+};
+
 
