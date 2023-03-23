@@ -61,10 +61,11 @@ void Unit::move() {
 
 void Unit::draw() {
   texture->Draw(
-    raylib::Rectangle(0,0, texture->width, texture->height), //source rectangle, full texture size
+    raylib::Rectangle(0, 0, texture->width, texture->height), //source rectangle, full texture size
     rect, //destination rectangle, texture rect
     raylib::Vector2(),
-    0
+    0,
+    team == Team::Player ? raylib::Color::Blue() : raylib::Color::Yellow()
   );
 
   Color c = active ? raylib::Color::Green() : raylib::Color::Red();
