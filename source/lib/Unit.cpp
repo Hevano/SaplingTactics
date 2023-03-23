@@ -9,7 +9,33 @@ const raylib::Vector2& Unit::getMovement() const
 
 void Unit::setMovement(const raylib::Vector2& newMovement)
 {
-  movement = newMovement;
+  raylib::Rectangle screenRect(raylib::Vector2(0.f), raylib::Vector2(GetScreenWidth(), GetScreenHeight()));
+  if (screenRect.CheckCollision(newMovement)) {
+    movement = newMovement;
+  }
+  else {
+    //Get vector from position to desired position
+    auto desiredMovementVector = getPos() - newMovement;
+    Vector2* collisionPoint = nullptr;
+
+    Vector2 screenCorners[4] = {
+      screenRect.GetPosition(), //top left
+      screenRect.GetPosition() + Vector2(screenRect.GetWidth(), 0), //top right
+      screenRect.GetPosition() + Vector2(0, screenRect.GetHeight()), //bottom left
+      screenRect.GetPosition() + Vector2(screenRect.GetWidth(), screenRect.GetHeight()), //bottom right
+
+    };
+
+    CheckCollisionLines(getPos(), newMovement, screenCorners[0], screenCorners[1], collisionPoint);
+    CheckCollisionLines(getPos(), newMovement, screenCorners[1], screenCorners[2], collisionPoint);
+    CheckCollisionLines(getPos(), newMovement, screenCorners[2], screenCorners[3], collisionPoint);
+    CheckCollisionLines(getPos(), newMovement, screenCorners[3], screenCorners[0], collisionPoint);
+
+    if (collisionPoint != nullptr) {
+      movement = *collisionPoint;
+    }
+
+  }
 }
 
 void Unit::clearMovement()

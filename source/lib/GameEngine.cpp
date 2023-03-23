@@ -1,6 +1,8 @@
 #include "GameEngine.h"
 #include "BehaviourNodes.h"
 
+#define SUPPORT_TRACELOG 1
+
 GameEngine::GameEngine() 
   : m_window(1280, 720, "Game Window")
   , m_screenHeight(720)
@@ -80,24 +82,45 @@ void GameEngine::runPreparation()
   //Draw Instructions Text
   DrawText("Press [SPACE] to start or reset the simulation", 
     0, 0, 16, raylib::Color::Black());
-  DrawText("Press the Number keys (1-2) to choose a unit type, and click to place a unit", 
+  DrawText("Scroll to choose a unit type, and click to place a unit of that type", 
     0, 30, 16, raylib::Color::Black());
   DrawText("Press tab to change team between player and computer", 
     0, 60, 16, raylib::Color::Black());
 
+  std::string unitTypeName;
+
+  switch (m_currentType) {
+  case UnitFactory::UnitType::Melee:
+    unitTypeName = "Melee";
+    break;
+  case UnitFactory::UnitType::Ranged:
+    unitTypeName = "Ranged";
+    break;
+  case UnitFactory::UnitType::Hunter:
+    unitTypeName = "Sylvan Hunter";
+    break;
+  case UnitFactory::UnitType::Sheep:
+    unitTypeName = "Sheep";
+    break;
+  default:
+    unitTypeName = "Unknown";
+    break;
+  }
+
   //Draw currently selected unit type text
-  DrawText(std::format("Selected: {}", m_currentType == UnitFactory::UnitType::Ranged ? "Ranged" : "Melee").c_str(), 
+  DrawText(std::format("Selected: {}", unitTypeName).c_str(),
     0, 90, 16, raylib::Color::Black());
 
   DrawText(std::format("Team: {}", m_currentTeam == Unit::Team::Player ? "Player" : "Computer").c_str(),
     0, 120, 16, raylib::Color::Black());
 
-  //Poll new unit selected
-  if (IsKeyPressed(KEY_ONE)) {
-    m_currentType = UnitFactory::UnitType::Melee;
-  } else if (IsKeyPressed(KEY_TWO)) {
-    m_currentType = UnitFactory::UnitType::Ranged;
-  }
+  size_t typeInt = static_cast<size_t>(m_currentType);
+
+  typeInt += GetMouseWheelMove();
+
+  typeInt = std::max(std::size_t(0), std::min(typeInt, std::size_t(3)));
+
+  m_currentType = static_cast<UnitFactory::UnitType>(typeInt);
 
   //Poll Team changed
   if (IsKeyPressed(KEY_TAB)) {
