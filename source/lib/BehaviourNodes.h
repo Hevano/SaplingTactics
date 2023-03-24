@@ -132,7 +132,7 @@ struct TargetInRangeNode : BehaviourNode
     auto units = AIManager::getInstance().getUnits();
     for (auto& id : AIManager::getInstance().getTeamIds(enemyTeam)) {
       auto& unit = units[id];
-      if (unit->active && actor.rect.GetPosition().Distance(unit->rect.GetPosition()) < radius)
+      if (unit->active && actor.getPos().Distance(unit->getPos()) < radius)
       {
         tree->blackboard["AttackTarget"] = std::make_any<UnitId>(unit->id);
         AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "AttackTarget");
@@ -203,9 +203,9 @@ struct ChaseNode : BehaviourNode
     }
 
     auto attackTargetId = std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
-    raylib::Vector2 targetPos = AIManager::getInstance().getUnits()[attackTargetId]->rect.GetPosition();
+    raylib::Vector2 targetPos = AIManager::getInstance().getUnits()[attackTargetId]->getPos();
     auto& actor = *(tree->actor.lock());
-    if (actor.rect.GetPosition().Distance(targetPos) < radius) {
+    if (actor.getPos().Distance(targetPos) < radius) {
       return setStatus(Status::Success);
     } else {
       actor.setMovement(targetPos);
@@ -235,9 +235,9 @@ struct ApproachTargetNode : BehaviourNode
 
     auto& actor = *(tree->actor.lock());
     auto attackTargetId = std::any_cast<UnitId>(tree->blackboard["AttackTarget"]);
-    raylib::Vector2 targetPos = AIManager::getInstance().getUnits()[attackTargetId]->rect.GetPosition();
+    raylib::Vector2 targetPos = AIManager::getInstance().getUnits()[attackTargetId]->getPos();
 
-    auto midpoint = (targetPos - actor.getPos()) * 0.5f;
+    auto midpoint = actor.getPos() + (targetPos - actor.getPos()) * 0.5f;
     tree->blackboard["MoveTarget"] = std::make_any<raylib::Vector2>(midpoint);
     AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "MoveTarget");
 
