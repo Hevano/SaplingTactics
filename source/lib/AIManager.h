@@ -2,10 +2,13 @@
 #include "Unit.h"
 #include "BehaviourTree.h"
 
-#include "ArborMasterAdapter.h"
+#include <adapter/Debugger.h>
+#include <adapter/Adapter.h>
 
 #include <unordered_map>
 #include <unordered_set>
+
+using namespace ArborMasterAdapter;
 
 class AIManager
 {

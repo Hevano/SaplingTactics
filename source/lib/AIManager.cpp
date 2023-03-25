@@ -48,16 +48,11 @@ void AIManager::tick()
 {
   //If a new thing is selected, we have to change out the blackboard (could require some synchronization)
 
-  try {
-    if (d.tick()) {
-      auto tree = m_trees[d.getCurrentActorId()];
-      std::ostringstream oss;
-      std::unordered_map<std::string, std::string> stringBlackboard = tree.getStringBlackboard();
-      d.resetDebugBlackboard(stringBlackboard);
-    }
-  }
-  catch (ipc::interprocess_exception& ex) {
-    std::cout << "Error: " << ex.what() << std::endl;
+  if (d.tick()) {
+    auto tree = m_trees[d.getCurrentActorId()];
+    std::ostringstream oss;
+    std::unordered_map<std::string, std::string> stringBlackboard = tree.getStringBlackboard();
+    d.resetDebugBlackboard(stringBlackboard);
   }
   
   for (auto& [id, tree] : m_trees) {
@@ -97,7 +92,6 @@ void AIManager::updateNodeDebugger(unsigned int nodeId, UnitId unitId, Status st
 BehaviourTree& AIManager::loadBTree(const std::string& path, UnitId unitId)
 {
   if (!m_cachedTrees.contains(path)) {
-    //TODO: Consider changing this from a class to just a namespace with functions, as we dont track any state
     Adapter a;
 
     m_cachedTrees[path] = BehaviourTree();

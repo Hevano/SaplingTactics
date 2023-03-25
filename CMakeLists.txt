@@ -85,7 +85,9 @@ target_include_directories(
 
 target_compile_features(SaplingTactics_lib PUBLIC cxx_std_20)
 
-target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp nlohmann_json::nlohmann_json Boost::interprocess)
+
+link_directories(source/adapter)
+target_link_libraries(SaplingTactics_lib PUBLIC raylib raylib_cpp nlohmann_json::nlohmann_json Boost::interprocess ArborMaster_adapter)
 
 # ---- Declare executable ----
 

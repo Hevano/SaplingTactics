@@ -1,6 +1,8 @@
 #include "GameEngine.h"
 #include "BehaviourNodes.h"
 
+#include <format>
+
 #define SUPPORT_TRACELOG 1
 
 GameEngine::GameEngine() 
