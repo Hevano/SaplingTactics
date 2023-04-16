@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 #include "BehaviourNodes.h"
+#include "EntityManager.h"
 
 #include <format>
 
@@ -39,6 +40,7 @@ void GameEngine::updateDrawFrame() {
 
     m_running = !m_running;
     m_activeTeamMap = { {Unit::Team::Player, true}, {Unit::Team::Computer, true} };
+    EntityManager::getInstance().clear();
   }
 }
 
@@ -62,6 +64,7 @@ void GameEngine::runSimulation()
     //If any unit is active, that unit's team is not defeated
     m_activeTeamMap[unit->team] = m_activeTeamMap[unit->team] || unit->active;
   }
+  EntityManager::getInstance().tick();
   
   if (!m_activeTeamMap[Unit::Team::Player]) {
     DrawText("Computer Team Wins!",
