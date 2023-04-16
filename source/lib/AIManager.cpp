@@ -27,6 +27,7 @@ void AIManager::removeUnit(Unit& unit) {
   m_teams[unit.team].erase(unit.id);
   m_units.erase(unit.id);
   m_unitTreePaths.erase(unit.id);
+  d.removeDebugActor(unit.id);
 }
 
 std::unordered_map<UnitId, std::shared_ptr<Unit>>& AIManager::getUnits()
@@ -46,14 +47,14 @@ const std::unordered_map<std::string, std::any>& AIManager::getUnitBlackboard(Un
 
 void AIManager::tick()
 {
-  //If a new thing is selected, we have to change out the blackboard (could require some synchronization)
-
+  if(m_units.contains(d.getCurrentActorId())) m_units[d.getCurrentActorId()]->selected = false;
   if (d.tick()) {
     auto tree = m_trees[d.getCurrentActorId()];
     std::ostringstream oss;
     std::unordered_map<std::string, std::string> stringBlackboard = tree.getStringBlackboard();
     d.resetDebugBlackboard(stringBlackboard);
   }
+  if (m_units.contains(d.getCurrentActorId())) m_units[d.getCurrentActorId()]->selected = true;
   
   for (auto& [id, tree] : m_trees) {
     tree.tick();

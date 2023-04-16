@@ -61,6 +61,12 @@ void Unit::move() {
 }
 
 void Unit::draw() {
+  if (selected) {
+    raylib::Rectangle highlight(rect);
+    highlight.SetSize(highlight.GetSize() * 1.1f);
+    highlight.SetPosition(getPos() - (highlight.GetSize() * 0.5f));
+    highlight.DrawRoundedLines(0.5f, 32, 2.f, raylib::Color::Yellow());
+  }
   texture->Draw(
     raylib::Rectangle(0, 0, texture->width, texture->height), //source rectangle, full texture size
     rect, //destination rectangle, texture rect
