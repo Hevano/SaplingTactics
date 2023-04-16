@@ -21,7 +21,7 @@ bool ProjectileEntity::tick()
 
   for (auto& [id, unit] : AIManager::getInstance().getUnits()) {
     if (id != u.id && unit->rect.CheckCollision(raylib::Rectangle(position, raylib::Vector2(20, 20)))) {
-      u.adjustTargetStat(Unit::Stat::Health, -u.stats[Unit::Stat::Damage], *unit);
+      u.adjustTargetStat(Unit::Stat::Health, -damage, *unit);
       return false;
     }
   }

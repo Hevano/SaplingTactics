@@ -195,7 +195,7 @@ struct ChaseNode : BehaviourNode
     return std::make_shared<ChaseNode>(ChaseNode(bt, nodeId));
   }
 
-  float radius = 10.f;
+  float radius = 100.f;
   Status evaluate() override
   {
     if (!tree->blackboard.contains("AttackTarget")) {
@@ -256,8 +256,6 @@ struct MeleeAttackNode : BehaviourNode
   {
     return std::make_shared<MeleeAttackNode>(MeleeAttackNode(bt, nodeId));
   }
-
-  float radius = 50.f;
   Status evaluate() override
   {
     if (!tree->blackboard.contains("AttackTarget")) {

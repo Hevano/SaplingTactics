@@ -20,10 +20,10 @@ private:
 static inline UnitId idCount = 0;
 
 const inline static std::vector<std::string> unitTexturePaths = {
-  "../../assets/cloak.png",
-  "../../assets/cloak2.png",
-  "../../assets/cloak2.png",
-  "../../assets/cloak2.png",
+  "../../assets/melee.png",
+  "../../assets/wizard.png",
+  "../../assets/hunter.png",
+  "../../assets/sheep.png",
 };
 
 const inline static std::vector<std::string> unitTreePaths = {

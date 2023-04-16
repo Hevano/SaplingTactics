@@ -31,7 +31,7 @@ public:
 
 
   std::shared_ptr<raylib::Texture> texture;
-  raylib::Rectangle rect = { 0,0,100,100 };
+  raylib::Rectangle rect = { 0,0,60,60 };
 
   UnitId id = 0;
   Team team = Team::Player;

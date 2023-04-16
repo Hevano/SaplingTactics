@@ -10,6 +10,7 @@ GameEngine::GameEngine()
   : m_window(1280, 720, "Game Window")
   , m_screenHeight(720)
   , m_screenWidth(1280)
+  , m_background("../../assets/background.png")
 {
   SetTargetFPS(60);
   m_activeTeamMap = { {Unit::Team::Player, true}, {Unit::Team::Computer, true} };
@@ -17,7 +18,12 @@ GameEngine::GameEngine()
 
 void GameEngine::updateDrawFrame() {
   BeginDrawing();
-  ClearBackground(RAYWHITE);
+  m_background.Draw(
+    raylib::Rectangle(0, 0, m_background.width, m_background.height), //source rectangle, full texture size
+    raylib::Rectangle(0, 0, GetScreenWidth(), GetScreenHeight()), //destination rectangle, texture rect
+    raylib::Vector2(),
+    0
+  );
 
   if (m_running) {
     runSimulation();
@@ -29,8 +35,24 @@ void GameEngine::updateDrawFrame() {
   EndDrawing();
 
   if (IsKeyPressed(KEY_SPACE) || !m_activeTeamMap[Unit::Team::Player] || !m_activeTeamMap[Unit::Team::Computer]) {
+    if (AIManager::getInstance().getTeamIds(Unit::Team::Player).size() == 0
+      || AIManager::getInstance().getTeamIds(Unit::Team::Computer).size() == 0) {
+      return;
+    }
+    
     if (m_running) {
       AIManager::getInstance().reset();
+
+      //Remove out-of-bounds units
+      std::vector<UnitId> outOfBoundsUnits;
+      for (auto& [id, unit] : AIManager::getInstance().getUnits()) {
+        if (!raylib::Rectangle(0, 0, GetScreenWidth(), GetScreenHeight()).CheckCollision(unit->rect)) {
+          outOfBoundsUnits.push_back(unit->id);
+        }
+      }
+      for (auto i : outOfBoundsUnits) {
+        AIManager::getInstance().removeUnit(*AIManager::getInstance().getUnits()[i]);
+      }
     }
 
     //If either team was defeated, allow 3 seconds to display victory message
@@ -61,6 +83,12 @@ void GameEngine::runSimulation()
   for (auto& [id, unit] : ai.getUnits()) {
     unit->move();
     unit->draw();
+
+    //Trigger out-of-bounds 
+    if (!raylib::Rectangle(0, 0, GetScreenWidth(), GetScreenHeight()).CheckCollision(unit->rect)) {
+      unit->adjustStat(Unit::Stat::Morale, -1, nullptr);
+    }
+
     //If any unit is active, that unit's team is not defeated
     m_activeTeamMap[unit->team] = m_activeTeamMap[unit->team] || unit->active;
   }
@@ -86,11 +114,11 @@ void GameEngine::runPreparation()
 
   //Draw Instructions Text
   DrawText("Press [SPACE] to start or reset the simulation", 
-    0, 0, 16, raylib::Color::Black());
+    0, 0, 16, raylib::Color::Yellow());
   DrawText("Scroll to choose a unit type, and click to place a unit of that type", 
-    0, 30, 16, raylib::Color::Black());
+    0, 30, 16, raylib::Color::Yellow());
   DrawText("Press tab to change team between player and computer", 
-    0, 60, 16, raylib::Color::Black());
+    0, 60, 16, raylib::Color::Yellow());
 
   std::string unitTypeName;
 
@@ -114,10 +142,10 @@ void GameEngine::runPreparation()
 
   //Draw currently selected unit type text
   DrawText(std::format("Selected: {}", unitTypeName).c_str(),
-    0, 90, 16, raylib::Color::Black());
+    0, 90, 16, raylib::Color::Yellow());
 
   DrawText(std::format("Team: {}", m_currentTeam == Unit::Team::Player ? "Player" : "Computer").c_str(),
-    0, 120, 16, raylib::Color::Black());
+    0, 120, 16, raylib::Color::Yellow());
 
   size_t typeInt = static_cast<size_t>(m_currentType);
 

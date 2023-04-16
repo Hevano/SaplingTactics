@@ -13,6 +13,8 @@ private:
   UnitFactory m_unitFactory;
   bool m_running = false;
 
+  raylib::Texture2D m_background;
+
   std::unordered_map<Unit::Team, bool> m_activeTeamMap;
   UnitFactory::UnitType m_currentType = UnitFactory::UnitType::Ranged;
   Unit::Team m_currentTeam = Unit::Team::Player;

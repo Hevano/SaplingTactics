@@ -16,7 +16,7 @@ class AIManager
 private:
   static inline AIManager* instance_ = nullptr;
   AIManager() {
-    std::unordered_map<unsigned int, std::string> mappings = { {0, "fake unit"} };
+    m_teams = { {Unit::Team::Player, {}}, {Unit::Team::Computer, {}} };
     d.init();
   };
   ~AIManager() = default;
