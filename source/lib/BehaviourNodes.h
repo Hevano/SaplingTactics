@@ -391,7 +391,7 @@ struct EnemyProximityNode : BehaviourNode
     auto& units = AIManager::getInstance().getUnits();
     for (auto& id : AIManager::getInstance().getTeamIds(enemyTeam)) {
       auto& unit = units[id];
-      if (unit->active && actor.getPos().Distance(unit->getPos()) < unit->stats[Unit::Stat::Speed] * 2)
+      if (unit->active && actor.getPos().Distance(unit->getPos()) < unit->stats[Unit::Stat::Speed] * 3)
       {
         tree->blackboard["ProximityTarget"] = std::make_any<UnitId>(unit->id);
         AIManager::getInstance().updateUnitDebugger(tree->getActorId(), "ProximityTarget");

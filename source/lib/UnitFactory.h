@@ -27,16 +27,16 @@ const inline static std::vector<std::string> unitTexturePaths = {
 };
 
 const inline static std::vector<std::string> unitTreePaths = {
-  "../../assets/wanderDesignExport.json",
+  "../../assets/meleeDesignExport.json",
   "../../assets/wizardDesignExport.json",
   "../../assets/hunterDesignExport.json",
   "../../assets/wanderDesignExport.json",
 };
 
 const inline static std::vector<std::unordered_map<Unit::Stat, int>> unitStats = {
-  {{Unit::Stat::Speed, 100},{Unit::Stat::Morale, 100},{Unit::Stat::Damage, 100},{Unit::Stat::Health, 100}},
+  {{Unit::Stat::Speed, 80},{Unit::Stat::Morale, 100},{Unit::Stat::Damage, 50},{Unit::Stat::Health, 200}},
   {{Unit::Stat::Speed, 75},{Unit::Stat::Morale, 100},{Unit::Stat::Damage, 100},{Unit::Stat::Health, 50}},
-  {{Unit::Stat::Speed, 125},{Unit::Stat::Morale, 100},{Unit::Stat::Damage, 125},{Unit::Stat::Health, 75}},
+  {{Unit::Stat::Speed, 125},{Unit::Stat::Morale, 100},{Unit::Stat::Damage, 100},{Unit::Stat::Health, 75}},
   {{Unit::Stat::Speed, 100},{Unit::Stat::Morale, 100},{Unit::Stat::Damage, 200},{Unit::Stat::Health, 200}},
 };
 

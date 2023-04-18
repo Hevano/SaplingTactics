@@ -1,0 +1,21 @@
+{
+    "debugPath": "C:\\Users\\Evano\\source\\repos\\ArborMaster\\build\\meleeDesign.json",
+    "root": {
+        "children": [
+            {
+                "id": 5,
+                "name": "NearestTargetNode"
+            },
+            {
+                "id": 7,
+                "name": "ChaseNode"
+            },
+            {
+                "id": 9,
+                "name": "MeleeAttackNode"
+            }
+        ],
+        "id": 3,
+        "name": "SequenceNode"
+    }
+}

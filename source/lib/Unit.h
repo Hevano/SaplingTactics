@@ -40,7 +40,7 @@ public:
   std::unordered_map<Stat, int> statsMax;
 
   bool active = true;
-  bool selected = true;
+  bool selected = false;
 
   raylib::Vector2 movement;
 
