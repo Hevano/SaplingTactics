@@ -24,5 +24,4 @@ struct UnitAction {
 
   std::function<Status(Unit&, UnitAction&)> effect;
   Status tick(Unit& u);
-  void start(Unit& u);
 };

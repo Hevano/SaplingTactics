@@ -8,8 +8,6 @@
 
 GameEngine::GameEngine() 
   : m_window(1280, 720, "Game Window")
-  , m_screenHeight(720)
-  , m_screenWidth(1280)
   , m_background("../../assets/background.png")
 {
   SetTargetFPS(60);

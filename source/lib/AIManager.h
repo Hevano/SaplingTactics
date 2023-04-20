@@ -30,7 +30,6 @@ public:
 private:
   Debugger d;
 
-
   std::unordered_map<UnitId, std::shared_ptr<Unit>> m_units;
   //Handy lookups
   std::unordered_map<UnitId, BehaviourTree> m_trees;

@@ -9,7 +9,6 @@ class GameEngine
 {
 private:
   raylib::Window m_window;
-  int m_screenWidth, m_screenHeight;
   UnitFactory m_unitFactory;
   bool m_running = false;
 

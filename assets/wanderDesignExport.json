@@ -3,23 +3,47 @@
     "root": {
         "children": [
             {
-                "id": 5,
-                "name": "WanderTargetNode"
+                "children": [
+                    {
+                        "id": 18,
+                        "name": "EnemyProximityNode"
+                    },
+                    {
+                        "id": 20,
+                        "name": "FleeTargetNode"
+                    },
+                    {
+                        "id": 22,
+                        "name": "MoveNode"
+                    }
+                ],
+                "id": 16,
+                "name": "SequenceNode"
             },
             {
-                "id": 7,
-                "name": "MoveNode"
-            },
-            {
-                "id": 9,
-                "name": "WaitStartNode"
-            },
-            {
-                "id": 11,
-                "name": "WaitNode"
+                "children": [
+                    {
+                        "id": 5,
+                        "name": "WanderTargetNode"
+                    },
+                    {
+                        "id": 7,
+                        "name": "MoveNode"
+                    },
+                    {
+                        "id": 9,
+                        "name": "WaitStartNode"
+                    },
+                    {
+                        "id": 11,
+                        "name": "WaitNode"
+                    }
+                ],
+                "id": 3,
+                "name": "SequenceNode"
             }
         ],
-        "id": 3,
-        "name": "SequenceNode"
+        "id": 13,
+        "name": "SelectorNode"
     }
 }
